@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth, LOGIN_ABERTO } from "../contexts/AuthContext";
 
 export function Login() {
   const [email, setEmail] = useState("");
@@ -98,7 +98,7 @@ export function Login() {
               className="input-field"
               placeholder="seu@email.com"
               autoComplete="username"
-              required
+              required={!LOGIN_ABERTO}
             />
           </div>
 
@@ -128,7 +128,7 @@ export function Login() {
               className="input-field"
               placeholder="••••••••"
               autoComplete="current-password"
-              required
+              required={!LOGIN_ABERTO}
             />
           </div>
 

@@ -3,6 +3,11 @@ import api from "../services/api";
 
 export const AuthContext = createContext({});
 
+// Login aberto (temporário, enquanto o backend não está no ar):
+// ao clicar em "Entrar" entra direto como ADMIN, sem verificar e-mail/senha.
+// Mude para false quando o backend e o banco estiverem publicados.
+export const LOGIN_ABERTO = true;
+
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -20,6 +25,19 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, senha) => {
+    if (LOGIN_ABERTO) {
+      const usuarioData = {
+        id: "login-aberto",
+        nome: "Administrador",
+        email: email || "admin@lkoperacao.com",
+        role: "ADMIN",
+      };
+      localStorage.setItem("token", "login-aberto");
+      localStorage.setItem("usuario", JSON.stringify(usuarioData));
+      setUsuario(usuarioData);
+      return { success: true };
+    }
+
     try {
       const response = await api.post("/auth/login", { email, senha });
       const { token, usuario: usuarioData } = response.data;

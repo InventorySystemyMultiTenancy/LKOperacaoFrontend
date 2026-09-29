@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth, LOGIN_ABERTO } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
+import { LOGIN_ABERTO } from "../config";
 
 export function Login() {
   const [email, setEmail] = useState("");

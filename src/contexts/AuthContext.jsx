@@ -1,12 +1,9 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import api from "../services/api";
+import { LOGIN_ABERTO } from "../config";
 
 export const AuthContext = createContext({});
 
-// Login aberto (temporário, enquanto o backend não está no ar):
-// ao clicar em "Entrar" entra direto como ADMIN, sem verificar e-mail/senha.
-// Mude para false quando o backend e o banco estiverem publicados.
-export const LOGIN_ABERTO = true;
 
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);

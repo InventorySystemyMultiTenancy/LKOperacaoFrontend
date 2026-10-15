@@ -525,6 +525,14 @@ export function MovimentacoesLoja() {
           ← Voltar para Lojas do Roteiro
         </button>
 
+        <button
+          type="button"
+          onClick={() => navigate(`/movimentacoes?lojaId=${lojaId}&roteiroId=${roteiroId}`)}
+          className="mb-4 ml-0 sm:ml-2 px-4 py-2 rounded-xl font-bold bg-accent-yellow text-primary-dark shadow-sm hover:brightness-95"
+        >
+          📋 Fazer o Controle de Arrecadação desta loja
+        </button>
+
         <PageHeader
           title={loja?.nome || "Carregando..."}
           subtitle={`${loja?.endereco || ""} - ${loja?.cidade || ""}`}

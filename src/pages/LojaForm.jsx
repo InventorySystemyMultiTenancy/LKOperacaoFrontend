@@ -20,6 +20,7 @@ export function LojaForm() {
     cep: "",
     telefone: "",
     responsavel: "",
+    percentualComissao: "",
     ativo: true,
   });
 
@@ -116,6 +117,7 @@ export function LojaForm() {
         cep: formData.cep?.trim() || null,
         telefone: formData.telefone.trim(),
         responsavel: formData.responsavel?.trim() || null,
+        percentualComissao: parseFloat(formData.percentualComissao) || 0,
         ativo: formData.ativo,
       };
 
@@ -323,6 +325,26 @@ export function LojaForm() {
                     placeholder="(11) 99999-9999"
                     required
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    💰 Comissão do ponto (%)
+                  </label>
+                  <input
+                    type="number"
+                    name="percentualComissao"
+                    value={formData.percentualComissao ?? ""}
+                    onChange={handleChange}
+                    className="input-field"
+                    placeholder="Ex: 30"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Usada no Controle de Arrecadação: comissão sobre o valor bruto
+                  </p>
                 </div>
 
                 <div className="flex items-center">

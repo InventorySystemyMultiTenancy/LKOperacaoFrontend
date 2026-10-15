@@ -7,6 +7,7 @@ import { PageHeader, AlertBox, Badge } from "../components/UIComponents";
 import { PageLoader, EmptyState } from "../components/Loading";
 import { useAuth } from "../contexts/AuthContext";
 import { RoteiroConfigModal } from "../components/RoteiroConfigModal";
+import { MovimentacoesAbas } from "../components/MovimentacoesAbas";
 
 function normalizarLocalizacaoRoteiro(item) {
   if (!item) return null;
@@ -816,6 +817,7 @@ export function SelecionarRoteiro() {
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <MovimentacoesAbas />
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
           <PageHeader
             title="Selecionar Roteiro"

@@ -10,7 +10,7 @@ const reais = (valor) =>
     : Number(valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 // Reduz a foto no próprio celular antes de enviar (fotos de câmera têm 3-8 MB).
-function comprimirFoto(arquivo) {
+export function comprimirFoto(arquivo) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(arquivo);
     const img = new Image();

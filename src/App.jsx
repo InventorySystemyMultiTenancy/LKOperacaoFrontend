@@ -39,6 +39,7 @@ const Graficos = lazy(() => import("./pages/Graficos").then(m => ({ default: m.G
 const Relatorios = lazy(() => import("./pages/Relatorios").then(m => ({ default: m.Relatorios })));
 const AlertasEstoque = lazy(() => import("./pages/AlertasEstoque").then(m => ({ default: m.AlertasEstoque })));
 const MachinePay = lazy(() => import("./pages/MachinePay").then(m => ({ default: m.MachinePay })));
+const Arrecadacao = lazy(() => import("./pages/Arrecadacao").then(m => ({ default: m.Arrecadacao })));
 const Conferencia = lazy(() => import("./pages/Conferencia").then(m => ({ default: m.Conferencia })));
 const StyleGuide = lazy(() => import("./pages/StyleGuide").then(m => ({ default: m.StyleGuide })));
 const CreditosRemotos = lazy(() => import("./pages/CreditosRemotos").then(m => ({ default: m.CreditosRemotos })));
@@ -204,6 +205,14 @@ function AppRoutes() {
           />
           <Route
             path="/movimentacoes"
+            element={
+              <PrivateRoute permissao="movimentacoes">
+                <Arrecadacao />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/movimentacoes/roteiros"
             element={
               <PrivateRoute permissao="movimentacoes">
                 <SelecionarRoteiro />

@@ -18,6 +18,7 @@ import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { AlertBox, Modal, PageHeader } from "../components/UIComponents";
 import { LoadingSpinner } from "../components/Loading";
+import { LeitoresContaMachinePay } from "../components/LeitoresContaMachinePay";
 import { HorarioFuncionamentoEditor } from "../components/HorarioFuncionamento";
 import {
   editorParaHorario,
@@ -2085,6 +2086,8 @@ export function MachinePay() {
             </div>
           }
         />
+
+        <LeitoresContaMachinePay />
 
         {erroResumo && <AlertBox type="error" title="Problema" message={erroResumo} onClose={() => setErroResumo("")} />}
         {monitor && !monitor.configurado && (

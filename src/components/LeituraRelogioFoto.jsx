@@ -32,6 +32,11 @@ function comprimirFoto(arquivo) {
   });
 }
 
+const numeroBR = (valor) =>
+  valor === null || valor === undefined
+    ? "—"
+    : Number(valor).toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+
 const ESTILO_NIVEL = {
   OK: {
     caixa: "bg-green-50 border-green-400",
@@ -103,12 +108,12 @@ export function ConferenciaResumo({ conferencia, titulo = "Conferência da leitu
           <div className="bg-white/80 rounded-lg p-3">
             <p className="text-xs text-gray-500">🧸 Prêmios (saíram / esperados)</p>
             <p className="text-lg font-bold text-gray-900">
-              {conferencia.premiosSaida} / {semConfigPremios ? "—" : conferencia.premiosEsperados}
+              {conferencia.premiosSaida} / {semConfigPremios ? "—" : numeroBR(conferencia.premiosEsperados)}
             </p>
             <p className="text-xs text-gray-500">
               {semConfigPremios
                 ? "Configure jogadas por prêmio na máquina"
-                : `${conferencia.jogadas} jogadas de ${reais(conferencia.config?.valorJogada)}`}
+                : `${numeroBR(conferencia.jogadas)} jogadas de ${reais(conferencia.config?.valorJogada)}`}
             </p>
           </div>
         </div>

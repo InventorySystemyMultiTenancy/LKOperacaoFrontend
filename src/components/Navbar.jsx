@@ -77,6 +77,7 @@ export function Navbar() {
       { to: "/produtos", label: "🧸 Produtos" },
     ];
     if (isAdmin || usuario?.role === "FINANCEIRO") {
+      links.push({ to: "/conferencia", label: "🎯 Conferência" });
       links.push({ to: "/financeiro", label: "💰 Financeiro" });
       links.push({ to: "/machine-pay", label: "📡 Machine Pay" });
     }

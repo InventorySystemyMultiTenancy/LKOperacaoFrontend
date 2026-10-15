@@ -39,6 +39,7 @@ const Graficos = lazy(() => import("./pages/Graficos").then(m => ({ default: m.G
 const Relatorios = lazy(() => import("./pages/Relatorios").then(m => ({ default: m.Relatorios })));
 const AlertasEstoque = lazy(() => import("./pages/AlertasEstoque").then(m => ({ default: m.AlertasEstoque })));
 const MachinePay = lazy(() => import("./pages/MachinePay").then(m => ({ default: m.MachinePay })));
+const Conferencia = lazy(() => import("./pages/Conferencia").then(m => ({ default: m.Conferencia })));
 const StyleGuide = lazy(() => import("./pages/StyleGuide").then(m => ({ default: m.StyleGuide })));
 const CreditosRemotos = lazy(() => import("./pages/CreditosRemotos").then(m => ({ default: m.CreditosRemotos })));
 const CreditoRemotoPublico = lazy(() => import("./pages/CreditoRemotoPublico").then(m => ({ default: m.CreditoRemotoPublico })));
@@ -254,6 +255,14 @@ function AppRoutes() {
             element={
               <PrivateRoute permissao="financeiro" allowedRoles={["ADMIN", "FINANCEIRO"]}>
                 <Financeiro />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/conferencia"
+            element={
+              <PrivateRoute permissao="conferencia" allowedRoles={["ADMIN", "FINANCEIRO"]}>
+                <Conferencia />
               </PrivateRoute>
             }
           />

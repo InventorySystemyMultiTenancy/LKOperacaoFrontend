@@ -11,7 +11,7 @@ export function Footer() {
                 alt="Toy Diversões"
                 className="w-20 h-20 object-contain"
               />
-              <span className="text-xl font-bold text-gradient bg-gradient-to-r from-primary via-accent-yellow to-primary bg-clip-text" style={{ textShadow: 'none' }}>
+              <span className="text-xl font-extrabold text-accent-yellow">
                 Toy Diversões
               </span>
             </div>
@@ -30,7 +30,7 @@ export function Footer() {
               <li>
                 <a
                   href="/"
-                  className="text-gray-400 hover:text-primary transition-colors flex items-center gap-2"
+                  className="text-gray-300 hover:text-accent-yellow transition-colors flex items-center gap-2"
                 >
                   <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
                   Dashboard
@@ -39,7 +39,7 @@ export function Footer() {
               <li>
                 <a
                   href="/movimentacoes"
-                  className="text-gray-400 hover:text-primary transition-colors flex items-center gap-2"
+                  className="text-gray-300 hover:text-accent-yellow transition-colors flex items-center gap-2"
                 >
                   <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
                   Movimentações
@@ -48,7 +48,7 @@ export function Footer() {
               <li>
                 <a
                   href="/maquinas"
-                  className="text-gray-400 hover:text-primary transition-colors flex items-center gap-2"
+                  className="text-gray-300 hover:text-accent-yellow transition-colors flex items-center gap-2"
                 >
                   <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
                   Máquinas

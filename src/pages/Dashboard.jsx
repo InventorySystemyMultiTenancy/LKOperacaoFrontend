@@ -7,6 +7,7 @@ import { Footer } from "../components/Footer";
 import { PageLoader } from "../components/Loading";
 import { Badge } from "../components/UIComponents";
 import { AlertaRoteirosPendentes } from "../components/AlertaRoteirosPendentes";
+import { AlertaConferencia } from "../components/AlertaConferencia";
 import { ManutencoesBadgeAlert } from "./ManutencoesBadgeAlert";
 import { useAuth } from "../contexts/AuthContext";
 import { CarrinhoWidget } from "../components/CarrinhoWidget";
@@ -1647,6 +1648,7 @@ export function Dashboard() {
       {/* Header com boas-vindas */}
       <Navbar />
       <AlertaRoteirosPendentes />
+      <AlertaConferencia />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Alerta de manutenção urgente atribuída ao funcionário */}
         {manutencoesUrgentes.length > 0 && (

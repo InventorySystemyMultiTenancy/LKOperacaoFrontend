@@ -6,6 +6,7 @@ import { Footer } from "../components/Footer";
 import { PageHeader, AlertBox, Badge } from "../components/UIComponents";
 import { PageLoader, EmptyState } from "../components/Loading";
 import { useAuth } from "../contexts/AuthContext";
+import { RoteiroConfigModal } from "../components/RoteiroConfigModal";
 
 function normalizarLocalizacaoRoteiro(item) {
   if (!item) return null;
@@ -202,8 +203,10 @@ export function SelecionarRoteiro() {
   const [showModalAdicionarLoja, setShowModalAdicionarLoja] = useState(false);
   const [roteiroSelecionadoParaAdicionar, setRoteiroSelecionadoParaAdicionar] = useState(null);
   const [filtroLoja, setFiltroLoja] = useState("");
-  // Filtro de tipo de roteiro: 'bolinha' ou 'dias'
+  // Filtro por categoria do roteiro ("todos" ou o nome da categoria)
   const [filtroTipoRoteiro, setFiltroTipoRoteiro] = useState("todos");
+  const [categorias, setCategorias] = useState([]);
+  const [modalRoteiro, setModalRoteiro] = useState({ aberto: false, roteiro: null });
   const [filtroNome, setFiltroNome] = useState("");
   const [observacoesEditando, setObservacoesEditando] = useState({});
   const [alertasRoteiro, setAlertasRoteiro] = useState([]);
@@ -216,7 +219,101 @@ export function SelecionarRoteiro() {
     carregarRoteiros();
     carregarFuncionarios();
     carregarTodasLojas();
+    carregarCategorias();
   }, []);
+
+  const carregarCategorias = async () => {
+    try {
+      const response = await api.get("/roteiros/categorias");
+      setCategorias(response.data || []);
+    } catch {
+      setCategorias(["Dias da Semana", "Bolinhas", "Gigantes"]);
+    }
+  };
+
+  const podeGerenciarRoteiros = pode("roteiros.gerenciar", usuario?.role === "ADMIN");
+
+  const abrirNovoRoteiro = () => setModalRoteiro({ aberto: true, roteiro: null });
+  const abrirEdicaoRoteiro = (roteiro) => setModalRoteiro({ aberto: true, roteiro });
+
+  const roteiroSalvo = async (mensagem) => {
+    setModalRoteiro({ aberto: false, roteiro: null });
+    setSuccess(mensagem);
+    await Promise.all([carregarRoteiros(), carregarCategorias()]);
+  };
+
+  const excluirRoteiro = async (roteiro) => {
+    const lojas = roteiro.lojas?.length || 0;
+    const confirmado = window.confirm(
+      `Excluir o roteiro "${roteiro.zona}"?` +
+        (lojas ? `\n\nEle tem ${lojas} loja(s); elas saem só deste roteiro.` : "") +
+        "\n\nO histórico de coletas é mantido.",
+    );
+    if (!confirmado) return;
+    try {
+      const response = await api.delete(`/roteiros/${roteiro.id}/excluir`);
+      setSuccess(response.data?.message || "Roteiro excluído.");
+      await Promise.all([carregarRoteiros(), carregarCategorias()]);
+    } catch (error) {
+      setError(error.response?.data?.error || "Erro ao excluir o roteiro.");
+    }
+  };
+
+  const formatarProximoReinicio = (iso) =>
+    iso
+      ? new Date(iso).toLocaleString("pt-BR", {
+          weekday: "short",
+          day: "2-digit",
+          month: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : null;
+
+  // Categoria, regra de reinício e ações do ADMIN no topo de cada card
+  const renderInfoRoteiro = (roteiro) => (
+    <div className="mb-3 space-y-2">
+      <div className="flex flex-wrap items-center gap-2">
+        {roteiro.categoria && (
+          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-accent-yellow text-primary-dark">
+            {roteiro.categoria}
+          </span>
+        )}
+        {roteiro.reinicioDescricao && (
+          <span className="text-xs text-gray-600">🔁 {roteiro.reinicioDescricao}</span>
+        )}
+      </div>
+      {roteiro.proximoReinicio && (
+        <p className="text-xs text-gray-500">
+          Próximo reinício: {formatarProximoReinicio(roteiro.proximoReinicio)}
+        </p>
+      )}
+      {podeGerenciarRoteiros && (
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              abrirEdicaoRoteiro(roteiro);
+            }}
+            className="px-3 py-1 rounded-lg text-xs font-semibold bg-primary/10 text-primary hover:bg-primary/20"
+          >
+            ⚙️ Editar
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              excluirRoteiro(roteiro);
+            }}
+            className="px-3 py-1 rounded-lg text-xs font-semibold bg-red-50 text-red-700 hover:bg-red-100"
+          >
+            🗑️ Excluir
+          </button>
+        </div>
+      )}
+    </div>
+  );
 
   useEffect(() => {
     if (podeGerenciarMov) {
@@ -561,23 +658,14 @@ export function SelecionarRoteiro() {
     );
     return nomeMatch || pontoMatch;
   });
-  if (filtroTipoRoteiro === "bolinha") {
-    roteirosFiltrados = roteirosFiltrados.filter(r => (r.zona || "").toLowerCase().startsWith("bolinha"));
-  } else if (filtroTipoRoteiro === "dias") {
-    const dias = ["segunda", "terça", "terca", "quarta", "quinta", "sexta"];
-    roteirosFiltrados = roteirosFiltrados.filter(r => {
-      const zona = (r.zona || "").toLowerCase();
-      return dias.some(dia => zona.startsWith(dia));
-    });
-  } else if (filtroTipoRoteiro === "gigantes") {
-    roteirosFiltrados = roteirosFiltrados.filter(r => (r.zona || "").toLowerCase() === "gruas gigantes");
+  if (filtroTipoRoteiro !== "todos") {
+    roteirosFiltrados = roteirosFiltrados.filter((r) => r.categoria === filtroTipoRoteiro);
   }
 
   // Roteiros de bolinha e gruas gigantes só aparecem para o funcionário atribuído (exceto admin)
   if (!podeGerenciarMov) {
     roteirosFiltrados = roteirosFiltrados.filter(r => {
-      const zona = (r.zona || "").toLowerCase();
-      if (zona.startsWith("bolinha") || zona === "gruas gigantes") {
+      if (r.categoria === "Bolinhas" || r.categoria === "Gigantes") {
         return r.funcionarioId === usuario.id;
       }
       return true;
@@ -735,30 +823,28 @@ export function SelecionarRoteiro() {
             icon="🗺️"
           />
           <div className="flex items-center gap-2 mt-2 md:mt-0">
-            <button
-              className={`px-4 py-2 rounded-lg font-semibold border-2 transition-colors ${filtroTipoRoteiro === "bolinha" ? "bg-blue-500 text-white border-blue-700" : "bg-white text-blue-700 border-blue-300 hover:bg-blue-100"}`}
-              onClick={() => setFiltroTipoRoteiro("bolinha")}
-            >
-              Bolinha
-            </button>
-            <button
-              className={`px-4 py-2 rounded-lg font-semibold border-2 transition-colors ${filtroTipoRoteiro === "dias" ? "bg-blue-500 text-white border-blue-700" : "bg-white text-blue-700 border-blue-300 hover:bg-blue-100"}`}
-              onClick={() => setFiltroTipoRoteiro("dias")}
-            >
-              Dias da Semana
-            </button>
-            <button
-              className={`px-4 py-2 rounded-lg font-semibold border-2 transition-colors ${filtroTipoRoteiro === "gigantes" ? "bg-orange-500 text-white border-orange-700" : "bg-white text-orange-700 border-orange-300 hover:bg-orange-100"}`}
-              onClick={() => setFiltroTipoRoteiro("gigantes")}
-            >
-              Gigantes
-            </button>
-            <button
-              className={`px-4 py-2 rounded-lg font-semibold border-2 transition-colors ${filtroTipoRoteiro === "todos" ? "bg-blue-500 text-white border-blue-700" : "bg-white text-blue-700 border-blue-300 hover:bg-blue-100"}`}
-              onClick={() => setFiltroTipoRoteiro("todos")}
-            >
-              Todos
-            </button>
+            {["todos", ...new Set(roteiros.map((r) => r.categoria).filter(Boolean))].map((cat) => (
+              <button
+                key={cat}
+                className={`px-4 py-2 rounded-lg font-semibold border-2 transition-colors ${
+                  filtroTipoRoteiro === cat
+                    ? "bg-primary text-white border-primary"
+                    : "bg-white text-primary border-primary/30 hover:border-primary"
+                }`}
+                onClick={() => setFiltroTipoRoteiro(cat)}
+              >
+                {cat === "todos" ? "Todos" : cat}
+              </button>
+            ))}
+            {podeGerenciarRoteiros && (
+              <button
+                type="button"
+                onClick={abrirNovoRoteiro}
+                className="px-4 py-2 rounded-lg font-bold border-2 bg-accent-yellow border-accent-yellow text-primary-dark hover:brightness-95"
+              >
+                ➕ Novo roteiro
+              </button>
+            )}
             <input
               type="text"
               placeholder="🔍 Buscar por nome do roteiro ou do ponto..."
@@ -840,6 +926,7 @@ export function SelecionarRoteiro() {
                     <h3 className="text-xl font-bold text-primary mb-2">
                       {roteiro.zona}
                     </h3>
+                    {renderInfoRoteiro(roteiro)}
                     {renderMapaAdmin(roteiro)}
 
                     <div className="flex items-center justify-between">
@@ -1172,6 +1259,7 @@ export function SelecionarRoteiro() {
                         <Badge variant="success">✅ Finalizado sem pendências</Badge>
                       )}
                     </div>
+                    {renderInfoRoteiro(roteiro)}
                     {renderMapaAdmin(roteiro)}
 
                     <div className="space-y-2 text-gray-700">
@@ -1604,6 +1692,14 @@ export function SelecionarRoteiro() {
         </div>
       )}
 
+      <RoteiroConfigModal
+        aberto={modalRoteiro.aberto}
+        roteiro={modalRoteiro.roteiro}
+        categorias={categorias}
+        funcionarios={funcionarios}
+        onFechar={() => setModalRoteiro({ aberto: false, roteiro: null })}
+        onSalvo={roteiroSalvo}
+      />
       <Footer />
     </div>
   );

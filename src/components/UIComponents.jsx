@@ -36,7 +36,7 @@ export function StatsGrid({ stats }) {
         <div
           key={index}
           className={`stat-card ${
-            stat.gradient || "bg-gradient-to-br from-primary to-accent-yellow"
+            stat.gradient || "bg-gradient-to-br from-primary to-primary-dark"
           }`}
         >
           <div className="relative z-10">

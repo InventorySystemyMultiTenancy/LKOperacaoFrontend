@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import api from "../services/api";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
@@ -28,6 +28,9 @@ export function MaquinaForm() {
     jogadasPremium: "",
     percentualAlertaEstoque: "",
     percentualComissao: "",
+    valorPulso: "1",
+    valorJogada: "",
+    jogadasPorPremio: "",
     localizacao: "",
     ativo: true,
     machinePayPosId: "",
@@ -43,11 +46,23 @@ export function MaquinaForm() {
   const [errosCampo, setErrosCampo] = useState({});
   const [horario, setHorario] = useState(() => horarioParaEditor(null));
 
+  const [searchParams] = useSearchParams();
+
   useEffect(() => {
     carregarLojas();
     if (isEdit) {
       carregarMaquina();
     } else {
+      // Cadastro aberto a partir de um leitor da conta Machine Pay
+      const posId = searchParams.get("posId");
+      if (posId) {
+        setFormData((atual) => ({
+          ...atual,
+          machinePayPosId: posId,
+          machinePayUsrId: searchParams.get("usrId") || "",
+          nome: searchParams.get("nome") || atual.nome,
+        }));
+      }
       setLoadingData(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -82,6 +97,9 @@ export function MaquinaForm() {
         jogadasPremium: response.data.jogadasPremium || "",
         percentualAlertaEstoque: response.data.percentualAlertaEstoque || 20,
         percentualComissao: response.data.percentualComissao || 0,
+        valorPulso: response.data.valorPulso ?? "1",
+        valorJogada: response.data.valorJogada ?? "",
+        jogadasPorPremio: response.data.jogadasPorPremio ?? "",
         localizacao: response.data.localizacao || "",
 
         ativo: response.data.ativo !== undefined ? response.data.ativo : true,
@@ -162,6 +180,9 @@ export function MaquinaForm() {
         percentualAlertaEstoque:
           parseInt(formData.percentualAlertaEstoque, 10) || 20,
         percentualComissao: parseFloat(formData.percentualComissao) || 0,
+        valorPulso: parseFloat(formData.valorPulso) || 1,
+        valorJogada: parseFloat(formData.valorJogada) || null,
+        jogadasPorPremio: parseInt(formData.jogadasPorPremio, 10) || null,
         localizacao: formData.localizacao?.trim() || null,
         ativo: formData.ativo,
         machinePayPosId: formData.machinePayPosId?.trim() || null,
@@ -468,6 +489,82 @@ export function MaquinaForm() {
                   </p>
                 </div>
               </div>
+            </div>
+
+            {/* Configuração de pagamento — base da conferência dos relógios */}
+            <div className="rounded-2xl border-2 border-accent-yellow bg-accent-cream/40 p-5">
+              <h3 className="text-lg font-bold text-gray-900 mb-1">
+                🎯 Configuração de pagamento (conferência)
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Com isso o sistema confere cada leitura de relógio: quanto deveria ter de
+                dinheiro físico e quantas pelúcias deveriam ter saído.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Valor de cada pulso (R$)
+                  </label>
+                  <input
+                    type="number"
+                    name="valorPulso"
+                    value={formData.valorPulso}
+                    onChange={handleChange}
+                    className="input-field"
+                    placeholder="1,00"
+                    min="0.01"
+                    step="0.01"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Padrão: 1 pulso = R$ 1,00</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Valor da jogada (R$)
+                  </label>
+                  <input
+                    type="number"
+                    name="valorJogada"
+                    value={formData.valorJogada}
+                    onChange={handleChange}
+                    className="input-field"
+                    placeholder="Ex: 2,00"
+                    min="0.01"
+                    step="0.01"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Quanto o cliente paga por jogada</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    1 prêmio a cada (jogadas)
+                  </label>
+                  <input
+                    type="number"
+                    name="jogadasPorPremio"
+                    value={formData.jogadasPorPremio}
+                    onChange={handleChange}
+                    className="input-field"
+                    placeholder="Ex: 15"
+                    min="1"
+                    step="1"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Como a máquina está programada</p>
+                </div>
+              </div>
+              {Number(formData.valorJogada) > 0 && Number(formData.jogadasPorPremio) > 0 && (
+                <p className="mt-4 text-sm font-semibold text-primary-dark">
+                  Exemplo: com R$ 60,00 no contador são{" "}
+                  {Math.floor(60 / Number(formData.valorJogada))} jogadas →{" "}
+                  {(60 / Number(formData.valorJogada) / Number(formData.jogadasPorPremio)).toLocaleString("pt-BR", {
+                    maximumFractionDigits: 1,
+                  })}{" "}
+                  pelúcia(s) esperada(s). Uma cada{" "}
+                  {(Number(formData.valorJogada) * Number(formData.jogadasPorPremio)).toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
+                  .
+                </p>
+              )}
             </div>
 
             {/* Informações Adicionais */}

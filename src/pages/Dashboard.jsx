@@ -295,7 +295,7 @@ export function Dashboard() {
   
   // Verificar se o usuário tem permissão para acessar gestão de carrinhos
   const usuarioEmail = usuario?.email || '';
-  const emailsAutorizadosCarrinhos = ['eriky@clubekids.com', 'gerson@clubekids.com'];
+  const emailsAutorizadosCarrinhos = [] // use as permissões personalizadas do usuário;
   const isEmailAutorizadoCarrinhos = emailsAutorizadosCarrinhos.includes(usuarioEmail.toLowerCase());
   const podeAcessarCarrinhos = pode("carrinhos", usuario?.role === 'ADMIN' || isEmailAutorizadoCarrinhos);
 
@@ -977,7 +977,7 @@ export function Dashboard() {
           }
 
           <div class="footer">
-            <p>Relatório gerado automaticamente pelo Sistema ClubeKids</p>
+            <p>Relatório gerado automaticamente pelo Sistema Toy Diversões</p>
           </div>
         </body>
       </html>
@@ -1329,7 +1329,7 @@ export function Dashboard() {
             </table>
             
             <div class="footer">
-              <p>ClubeKids - Sistema de Gestão de Máquinas</p>
+              <p>Toy Diversões - Sistema de Gestão de Máquinas</p>
               <p>Relatório gerado automaticamente pelo sistema</p>
             </div>
           </body>
@@ -1406,7 +1406,7 @@ export function Dashboard() {
               </table>
               
               <div style="margin-top: 15px; text-align: center; font-size: 10px; color: #6b7280;">
-                <p>ClubeKids - Sistema de Gestão de Máquinas</p>
+                <p>Toy Diversões - Sistema de Gestão de Máquinas</p>
               </div>
             </div>
           `,
@@ -2031,7 +2031,7 @@ export function Dashboard() {
                       Math.min(prev + 20, lojasFiltradas.length)
                     )
                   }
-                  className="w-full bg-linear-to-r from-primary/10 to-accent-yellow/10 hover:from-primary/20 hover:to-accent-yellow/20 text-primary font-bold py-3 rounded-xl transition-all duration-200"
+                  className="w-full bg-linear-to-r from-primary/10 to-accent-yellow/20 hover:from-primary/20 hover:to-accent-yellow/30 text-primary font-bold py-3 rounded-xl transition-all duration-200"
                 >
                   Carregar mais ({Math.min(20, lojasFiltradas.length - limiteLojasVisiveis)} de {lojasFiltradas.length - limiteLojasVisiveis} restantes)
                 </button>
@@ -2540,7 +2540,7 @@ export function Dashboard() {
             </div>
             {!mostrarAlertasMaquinas ? (
               <button
-                className="block mt-6 w-full text-center bg-linear-to-r from-primary/10 to-accent-yellow/10 hover:from-primary/20 hover:to-accent-yellow/20 text-primary font-bold py-3 rounded-xl transition-all duration-200"
+                className="block mt-6 w-full text-center bg-linear-to-r from-primary/10 to-accent-yellow/20 hover:from-primary/20 hover:to-accent-yellow/30 text-primary font-bold py-3 rounded-xl transition-all duration-200"
                 onClick={() => {
                   setMostrarAlertasMaquinas(true);
                   setLimiteAlertasMaquinas(20);
@@ -2604,7 +2604,7 @@ export function Dashboard() {
                 ))}
                 {stats.alertas.length > limiteAlertasMaquinas && (
                   <button
-                    className="w-full text-center bg-linear-to-r from-primary/10 to-accent-yellow/10 hover:from-primary/20 hover:to-accent-yellow/20 text-primary font-bold py-3 rounded-xl transition-all duration-200"
+                    className="w-full text-center bg-linear-to-r from-primary/10 to-accent-yellow/20 hover:from-primary/20 hover:to-accent-yellow/30 text-primary font-bold py-3 rounded-xl transition-all duration-200"
                     onClick={() =>
                       setLimiteAlertasMaquinas((prev) =>
                         Math.min(prev + 20, stats.alertas.length)
@@ -2726,7 +2726,7 @@ export function Dashboard() {
           <div className="card">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <span className="bg-linear-to-br from-primary to-accent-yellow p-2 rounded-lg">
+                <span className="bg-linear-to-br from-primary to-primary-dark p-2 rounded-lg">
                   <svg
                     className="w-6 h-6 text-white"
                     fill="currentColor"
@@ -2750,7 +2750,7 @@ export function Dashboard() {
             </div>
             {!mostrarPerformanceLojas ? (
               <button
-                className="block mt-6 w-full text-center bg-linear-to-r from-primary/10 to-accent-yellow/10 hover:from-primary/20 hover:to-accent-yellow/20 text-primary font-bold py-3 rounded-xl transition-all duration-200"
+                className="block mt-6 w-full text-center bg-linear-to-r from-primary/10 to-accent-yellow/20 hover:from-primary/20 hover:to-accent-yellow/30 text-primary font-bold py-3 rounded-xl transition-all duration-200"
                 onClick={() => {
                   setMostrarPerformanceLojas(true);
                   setLimitePerformanceLojas(20);
@@ -2841,7 +2841,7 @@ export function Dashboard() {
                         <tr key={index}>
                           <td className="font-bold text-gray-900">
                             <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 rounded-full bg-linear-to-r from-primary to-accent-yellow"></div>
+                              <div className="w-2 h-2 rounded-full bg-linear-to-r from-primary to-primary-dark"></div>
                               {loja.nome}
                             </div>
                           </td>
@@ -2869,7 +2869,7 @@ export function Dashboard() {
                 </div>
                 {stats.balanco.distribuicaoLojas.length > limitePerformanceLojas && (
                   <button
-                    className="mt-4 w-full text-center bg-linear-to-r from-primary/10 to-accent-yellow/10 hover:from-primary/20 hover:to-accent-yellow/20 text-primary font-bold py-3 rounded-xl transition-all duration-200"
+                    className="mt-4 w-full text-center bg-linear-to-r from-primary/10 to-accent-yellow/20 hover:from-primary/20 hover:to-accent-yellow/30 text-primary font-bold py-3 rounded-xl transition-all duration-200"
                     onClick={() =>
                       setLimitePerformanceLojas((prev) =>
                         Math.min(prev + 20, stats.balanco.distribuicaoLojas.length)
@@ -2921,7 +2921,7 @@ export function Dashboard() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
             {/* Header do Modal */}
-            <div className="bg-linear-to-r from-primary to-accent-yellow p-6 text-white">
+            <div className="bg-linear-to-r from-primary to-primary-dark p-6 text-white">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold flex items-center gap-3">
@@ -3200,7 +3200,7 @@ export function Dashboard() {
               </button>
               <button
                 onClick={salvarEstoque}
-                className="px-6 py-3 bg-linear-to-r from-primary to-accent-yellow text-black rounded-lg font-semibold hover:shadow-lg transition-all flex items-center gap-2"
+                className="px-6 py-3 bg-linear-to-r from-primary to-primary-dark text-white rounded-lg font-semibold hover:shadow-lg transition-all flex items-center gap-2"
                 disabled={salvandoEstoque}
               >
                 {salvandoEstoque ? (

@@ -258,6 +258,6 @@ Para aplicar o design em outras páginas:
 
 ---
 
-**🧸 Divirta-se desenvolvendo com o sistema Agarra Mais!**
+**🧸 Divirta-se desenvolvendo com o sistema Toy Diversões!**
 
 Para dúvidas, consulte o `/style-guide` ou a documentação em `DESIGN.md`

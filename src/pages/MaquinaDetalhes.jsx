@@ -184,7 +184,7 @@ export function MaquinaDetalhes() {
           }
           
           .header {
-            background: linear-gradient(to right, #C91F24, #2457B1);
+            background: linear-gradient(to right, #082A7A, #0B3BA8);
             color: white;
             padding: 40px;
             text-align: center;
@@ -217,7 +217,7 @@ export function MaquinaDetalhes() {
             padding: 15px;
             background: #f8f9fa;
             border-radius: 10px;
-            border-left: 4px solid #2457B1;
+            border-left: 4px solid #0B3BA8;
           }
           
           .info-item label {
@@ -280,7 +280,7 @@ export function MaquinaDetalhes() {
           }
           
           .venda-card.total {
-            background: linear-gradient(135deg, #C91F24 0%, #2457B1 100%);
+            background: linear-gradient(135deg, #082A7A 0%, #0B3BA8 100%);
             grid-column: 1 / -1;
             font-size: 1.2em;
           }
@@ -385,7 +385,7 @@ export function MaquinaDetalhes() {
           </div>
           
           <div class="footer">
-            <p><strong>Relatório gerado automaticamente pelo Sistema ClubeKids</strong></p>
+            <p><strong>Relatório gerado automaticamente pelo Sistema Toy Diversões</strong></p>
             <p>Data: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
           </div>
         </div>

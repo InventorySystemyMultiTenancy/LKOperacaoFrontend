@@ -5,25 +5,25 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "#2457B1", // Azul Clube Kids
-          light: "#66C24D", // Verde Clube Kids (mantido para compatibilidade)
-          dark: "#ED3136", // Vermelho Clube Kids
+          DEFAULT: "#0B3BA8", // Azul Toy Diversões
+          light: "#1E5BD8", // Azul claro
+          dark: "#082A7A", // Azul escuro
         },
         secondary: {
-          DEFAULT: "#FFFDFF", // Branco Clube Kids
-          light: "#FFFDFF", // Branco Clube Kids
+          DEFAULT: "#FFFFFF", // Branco
+          light: "#FFFCF0", // Branco amarelado
         },
         background: {
-          dark: "#2457B1", // Azul Clube Kids
-          light: "#FFFDFF", // Branco Clube Kids
+          dark: "#082A7A", // Azul escuro
+          light: "#FFFCF0", // Branco amarelado
         },
         accent: {
-          blue: "#2457B1", // Azul Clube Kids
-          red: "#ED3136", // Vermelho Clube Kids
-          yellow: "#FFCC00", // Amarelo Clube Kids
-          green: "#66C24D", // Verde Clube Kids (mantido)
-          white: "#FFFDFF", // Branco Clube Kids
-          cream: "#FFF9E6", // Creme suave
+          blue: "#0B3BA8", // Azul Toy Diversões
+          red: "#E30613", // Vermelho da faixa da logo (alertas)
+          yellow: "#FFD800", // Amarelo Toy Diversões
+          green: "#16A34A", // Verde (sucesso)
+          white: "#FFFFFF", // Branco
+          cream: "#FFF6CC", // Amarelo suave
         },
       },
       fontFamily: {

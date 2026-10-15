@@ -14,6 +14,7 @@ import { useAuth } from "../contexts/AuthContext";
 import AvisosMaquinasFaltam from "../components/AvisosMaquinasFaltam";
 import TabelaMovimentacoesEstoqueDeLoja from "../components/TabelaMovimentacoesEstoqueDeLoja";
 import { MovimentacaoInconsistenteModal } from "../components/MovimentacaoInconsistenteModal";
+import { LeituraRelogioFoto, ConferenciaResumo } from "../components/LeituraRelogioFoto";
 import {
   TIPO_OCORRENCIA_INCONSISTENCIA,
   montarObservacaoInconsistencia,
@@ -67,6 +68,8 @@ export function Movimentacoes() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [leituraFoto, setLeituraFoto] = useState(null);
+  const [conferenciaSalva, setConferenciaSalva] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [salvandoMovimentacao, setSalvandoMovimentacao] = useState(false);
   const [modalInconsistencia, setModalInconsistencia] = useState(null);
@@ -213,6 +216,7 @@ export function Movimentacoes() {
     setEstoqueInfo(null);
     setMachinePayDataInicio("");
     setFiltroLojaForm("");
+    setLeituraFoto(null);
     setShowForm(false);
   };
 
@@ -222,6 +226,9 @@ export function Movimentacoes() {
     console.log("✅ [handleSubmit] Sucesso:", response.data);
 
     setSuccess("Movimentação registrada com sucesso!");
+    setConferenciaSalva(
+      response.data?.conferencia?.status === "CONFERIDA" ? response.data.conferencia : null,
+    );
 
     const { machinePay } = response.data;
     if (machinePay?.sucesso === true) {
@@ -383,6 +390,14 @@ export function Movimentacoes() {
         totalPos: totalPos,
         contadorIn: parseInt(formData.contadorIn) || null,
         contadorOut: parseInt(formData.contadorOut) || null,
+        leituraFoto: leituraFoto
+          ? {
+              ...leituraFoto,
+              corrigido:
+                String(leituraFoto.contadorIn ?? "") !== String(formData.contadorIn) ||
+                String(leituraFoto.contadorOut ?? "") !== String(formData.contadorOut),
+            }
+          : null,
         quantidade_notas_entrada: formData.quantidade_notas_entrada
           ? parseFloat(formData.quantidade_notas_entrada)
           : null,
@@ -844,6 +859,19 @@ export function Movimentacoes() {
             onClose={() => setSuccess("")}
           />
         )}
+        {conferenciaSalva && (
+          <div className="mb-6 relative">
+            <button
+              type="button"
+              onClick={() => setConferenciaSalva(null)}
+              className="absolute top-2 right-3 text-gray-500 hover:text-gray-800"
+              aria-label="Fechar conferência"
+            >
+              ✕
+            </button>
+            <ConferenciaResumo conferencia={conferenciaSalva} titulo="Conferência da coleta salva" />
+          </div>
+        )}
         {avisoMachinePay && (
           <AlertBox
             type={avisoMachinePay.type}
@@ -1095,6 +1123,21 @@ export function Movimentacoes() {
               <h3 className="text-lg font-bold text-gray-800 mb-3 mt-6">
                 📊 Contadores da Máquina
               </h3>
+              <div className="mb-4">
+                <LeituraRelogioFoto
+                  maquinaId={formData.maquina_id}
+                  contadorIn={formData.contadorIn}
+                  contadorOut={formData.contadorOut}
+                  onLeitura={({ contadorIn, contadorOut, leituraFoto: lida }) => {
+                    setFormData((atual) => ({
+                      ...atual,
+                      contadorIn: contadorIn === "" ? atual.contadorIn : String(contadorIn),
+                      contadorOut: contadorOut === "" ? atual.contadorOut : String(contadorOut),
+                    }));
+                    setLeituraFoto(lida);
+                  }}
+                />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">

@@ -37,18 +37,18 @@ export function Login() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-4">
             <img
-              src="/ClubeKidsLogo (1).png"
-              alt="Clube Kids"
+              src="/ToyDiversoesLogo.png"
+              alt="Toy Diversões"
               className="w-38 h-38 object-contain"
             />
           </div>
           <h1 className="text-4xl font-bold mb-2">
-            <span className="text-gradient">Clube Kids</span>
+            <span className="text-gradient">Toy Diversões</span>
           </h1>
           <p className="text-gray-600 font-medium">
             Sistema de Gestão de Pelúcias 🧸
           </p>
-          <div className="mt-2 inline-block bg-gradient-to-r from-primary/10 to-accent-yellow/10 px-4 py-1 rounded-full">
+          <div className="mt-2 inline-block bg-gradient-to-r from-primary/10 to-accent-yellow/20 px-4 py-1 rounded-full">
             <p className="text-sm text-gray-700">
               Controle seu estoque com facilidade
             </p>
@@ -179,7 +179,7 @@ export function Login() {
             Não tem uma conta?{" "}
             <Link
               to="/registrar"
-              className="font-bold text-primary hover:text-accent-yellow transition-colors inline-flex items-center gap-1"
+              className="font-bold text-primary hover:text-primary-dark transition-colors inline-flex items-center gap-1"
             >
               Registre-se aqui
               <svg

@@ -59,7 +59,7 @@ export function GestaoCarrinhos() {
 
   // Verificar se o usuário tem permissão para acessar e devolver carrinhos
   const usuarioEmail = usuario?.email || '';
-  const emailsAutorizados = ['eriky@clubekids.com', 'gerson@clubekids.com'];
+  const emailsAutorizados = [] // use as permissões personalizadas do usuário;
   const isEmailAutorizado = emailsAutorizados.includes(usuarioEmail.toLowerCase());
   const isAdmin = usuario?.role === 'ADMIN';
   const podeAcessar = pode('carrinhos', isAdmin || isEmailAutorizado);

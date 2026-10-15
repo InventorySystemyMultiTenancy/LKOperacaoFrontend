@@ -1,4 +1,4 @@
-# 🧸 Sistema Agarra Mais - Frontend
+# 🧸 Sistema Toy Diversões - Frontend
 
 Sistema moderno e completo de gestão de estoque para máquinas de pelúcias.
 

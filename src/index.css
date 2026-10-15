@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@config "../tailwind.config.js";
 
 @layer base {
   * {
@@ -6,7 +7,7 @@
   }
 
   body {
-    background-color: #f2f2f2;
+    background-color: #FFFCF0;
     color: #0d0d0d;
   }
 }
@@ -21,36 +22,36 @@
     background: linear-gradient(
       to bottom right,
       white,
-      rgba(36, 87, 177, 0.1)
+      rgba(11, 59, 168, 0.1)
     );
-    border: 1px solid rgba(36, 87, 177, 0.3);
+    border: 1px solid rgba(11, 59, 168, 0.3);
     @apply rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl;
   }
 
   /* Botões com estilo moderno */
   .btn-primary {
-    background: linear-gradient(to right, #2457B1, #ED3136);
+    background: linear-gradient(to right, #0B3BA8, #1E5BD8);
     color: white;
     @apply font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
   }
 
   .btn-primary:focus {
-    --tw-ring-color: rgba(36, 87, 177, 0.5);
+    --tw-ring-color: rgba(11, 59, 168, 0.5);
   }
 
   .btn-secondary {
     background: white;
-    color: #2457B1;
-    border: 2px solid #2457B1;
+    color: #0B3BA8;
+    border: 2px solid #0B3BA8;
     @apply font-semibold px-6 py-3 rounded-xl shadow-sm hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
   }
 
   .btn-secondary:hover {
-    background-color: rgba(36, 87, 177, 0.05);
+    background-color: rgba(11, 59, 168, 0.05);
   }
 
   .btn-secondary:focus {
-    --tw-ring-color: rgba(36, 87, 177, 0.5);
+    --tw-ring-color: rgba(11, 59, 168, 0.5);
   }
 
   .btn-danger {
@@ -67,8 +68,8 @@
   }
 
   .input-field:focus {
-    border-color: #2457B1;
-    --tw-ring-color: rgba(36, 87, 177, 0.1);
+    border-color: #0B3BA8;
+    --tw-ring-color: rgba(11, 59, 168, 0.1);
     @apply ring-4;
   }
 
@@ -81,8 +82,8 @@
   }
 
   .select-field:focus {
-    border-color: #2457B1;
-    --tw-ring-color: rgba(36, 87, 177, 0.1);
+    border-color: #0B3BA8;
+    --tw-ring-color: rgba(11, 59, 168, 0.1);
     @apply ring-4;
   }
 
@@ -92,9 +93,9 @@
   }
 
   .badge-warning {
-    background-color: rgba(255, 204, 0, 0.2);
-    color: #FFCC00;
-    border: 1px solid rgba(255, 204, 0, 0.3);
+    background-color: rgba(255, 216, 0, 0.2);
+    color: #7A5F00;
+    border: 1px solid rgba(255, 216, 0, 0.3);
   }
 
   .badge-success {
@@ -117,8 +118,8 @@
   .table-modern thead {
     background: linear-gradient(
       to right,
-      rgba(36, 87, 177, 0.05),
-      rgba(237, 49, 54, 0.05)
+      rgba(11, 59, 168, 0.05),
+      rgba(255, 216, 0, 0.05)
     );
   }
 
@@ -135,7 +136,7 @@
   }
 
   .table-modern tbody tr:hover {
-    background-color: rgba(36, 87, 177, 0.1);
+    background-color: rgba(11, 59, 168, 0.1);
   }
 
   /* Alert boxes */
@@ -153,7 +154,7 @@
 
   .alert-warning {
     background-color: rgb(255 252 230);
-    border-color: #FFCC00;
+    border-color: #FFD800;
     color: rgb(113 63 18);
   }
 
@@ -180,12 +181,12 @@
   .teddy-pattern {
     background-image: radial-gradient(
         circle at 20% 80%,
-        rgba(36, 87, 177, 0.03) 0%,
+        rgba(11, 59, 168, 0.03) 0%,
         transparent 50%
       ),
       radial-gradient(
         circle at 80% 20%,
-        rgba(237, 49, 54, 0.03) 0%,
+        rgba(255, 216, 0, 0.03) 0%,
         transparent 50%
       );
   }
@@ -193,14 +194,14 @@
   /* Loading spinner personalizado */
   .spinner {
     @apply animate-spin rounded-full border-4;
-    border-color: rgba(36, 87, 177, 0.2);
-    border-top-color: #2457B1;
+    border-color: rgba(11, 59, 168, 0.2);
+    border-top-color: #0B3BA8;
   }
 }
 
 @layer utilities {
   .text-gradient {
-    background: linear-gradient(to right, #2457B1, #ED3136);
+    background: linear-gradient(to right, #0B3BA8, #1E5BD8);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -208,10 +209,10 @@
 
   .bg-pattern {
     background-image: linear-gradient(
-        rgba(36, 87, 177, 0.05) 1px,
+        rgba(11, 59, 168, 0.05) 1px,
         transparent 1px
       ),
-      linear-gradient(90deg, rgba(36, 87, 177, 0.05) 1px, transparent 1px);
+      linear-gradient(90deg, rgba(11, 59, 168, 0.05) 1px, transparent 1px);
     background-size: 20px 20px;
   }
 }

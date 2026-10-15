@@ -6,6 +6,7 @@ import { Footer } from "../components/Footer";
 import { PageHeader, AlertBox, Badge } from "../components/UIComponents";
 import { PageLoader } from "../components/Loading";
 import { MovimentacaoInconsistenteModal } from "../components/MovimentacaoInconsistenteModal";
+import { LeituraRelogioFoto } from "../components/LeituraRelogioFoto";
 import {
   TIPO_OCORRENCIA_INCONSISTENCIA,
   montarObservacaoInconsistencia,
@@ -108,6 +109,7 @@ export function MovimentacoesLoja() {
 
   // Formulário de movimentação
   // Inicializa com o ID da máquina passada via navegação, se houver
+  const [leituraFoto, setLeituraFoto] = useState(null);
   const [maquinaSelecionada, setMaquinaSelecionada] = useState(() => {
     return location.state?.maquinaId || "";
   });
@@ -347,8 +349,17 @@ export function MovimentacoesLoja() {
         totalPos:
           (parseInt(formData.quantidadeAtualMaquina) || 0) +
           (parseInt(formData.quantidadeAdicionada) || 0),
-        contadorIn: parseInt(formData.contadorIn) || 0,
-        contadorOut: parseInt(formData.contadorOut) || 0,
+        // Vazio = sem leitura de relógio (0 seria lido como contador zerado)
+        contadorIn: formData.contadorIn === "" ? null : parseInt(formData.contadorIn),
+        contadorOut: formData.contadorOut === "" ? null : parseInt(formData.contadorOut),
+        leituraFoto: leituraFoto
+          ? {
+              ...leituraFoto,
+              corrigido:
+                String(leituraFoto.contadorIn ?? "") !== String(formData.contadorIn) ||
+                String(leituraFoto.contadorOut ?? "") !== String(formData.contadorOut),
+            }
+          : null,
         quantidade_notas_entrada: 0,
         valor_entrada_maquininha_pix:
           parseFloat(formData.valor_entrada_maquininha_pix) || 0,
@@ -756,6 +767,22 @@ export function MovimentacoesLoja() {
                       }
                       className="input-field"
                       min="0"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <LeituraRelogioFoto
+                      maquinaId={maquinaSelecionada}
+                      contadorIn={formData.contadorIn}
+                      contadorOut={formData.contadorOut}
+                      onLeitura={({ contadorIn, contadorOut, leituraFoto: lida }) => {
+                        setFormData((atual) => ({
+                          ...atual,
+                          contadorIn: contadorIn === "" ? atual.contadorIn : String(contadorIn),
+                          contadorOut: contadorOut === "" ? atual.contadorOut : String(contadorOut),
+                        }));
+                        setLeituraFoto(lida);
+                      }}
                     />
                   </div>
 

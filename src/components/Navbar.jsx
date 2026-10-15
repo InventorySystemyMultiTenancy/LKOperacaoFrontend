@@ -44,7 +44,7 @@ export function Navbar() {
   const linkClass = (path) =>
     `flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
       isActive(path)
-        ? "bg-gradient-to-r from-primary to-accent-yellow text-white shadow-lg"
+        ? "bg-accent-yellow text-primary-dark font-bold shadow-lg"
         : "text-gray-300 hover:bg-white/10 hover:text-white"
     }`;
 
@@ -107,9 +107,9 @@ export function Navbar() {
 
   return (
     <nav
-      className="relative shadow-2xl border-b-4 border-yellow-400 z-50"
+      className="relative shadow-2xl border-b-4 border-accent-yellow z-50"
       style={{
-        background: "linear-gradient(to right, #C91F24, #2457B1)",
+        background: "linear-gradient(to right, #082A7A, #0B3BA8)",
         textShadow: "0 2px 4px rgba(0,0,0,0.5)",
         color: "#FFFFFF",
       }}
@@ -154,8 +154,8 @@ export function Navbar() {
               onClick={closeMenu}
             >
               <img
-                src="/ClubeKidsLogo (1).png"
-                alt="Clube Kids"
+                src="/ToyDiversoesLogo.png"
+                alt="Toy Diversões"
                 className="w-20 h-20 lg:w-24 lg:h-24 object-contain transition-transform duration-300 group-hover:scale-110"
                 onError={(e) => {
                   e.target.style.display = "none";

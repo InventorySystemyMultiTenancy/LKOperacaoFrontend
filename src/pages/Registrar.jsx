@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
-const SENHA_ACESSO = "clubekids2025"; // Defina a senha de acesso aqui
+const SENHA_ACESSO = "toydiversoes2025"; // Defina a senha de acesso aqui
 
 export function Registrar() {
   const [senhaAcesso, setSenhaAcesso] = useState("");
@@ -79,7 +79,7 @@ export function Registrar() {
 
         <div className="relative card-gradient max-w-md w-full backdrop-blur-sm">
           <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-accent-yellow rounded-full shadow-2xl mb-3">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary-dark rounded-full shadow-2xl mb-3">
               <svg
                 className="w-8 h-8 text-white"
                 fill="currentColor"
@@ -161,7 +161,7 @@ export function Registrar() {
       <div className="relative card-gradient max-w-md w-full backdrop-blur-sm">
         {/* Logo/Header Section */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-accent-yellow rounded-full shadow-2xl mb-3 transform hover:rotate-12 transition-transform duration-300">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary to-primary-dark rounded-full shadow-2xl mb-3 transform hover:rotate-12 transition-transform duration-300">
             <svg
               className="w-8 h-8 text-white"
               fill="currentColor"
@@ -174,7 +174,7 @@ export function Registrar() {
             <span className="text-gradient">Criar Conta</span>
           </h1>
           <p className="text-gray-600 text-sm">
-            Junte-se ao Sistema Clube Kids 🧸
+            Junte-se ao Sistema Toy Diversões 🧸
           </p>
         </div>
 
@@ -387,7 +387,7 @@ export function Registrar() {
             Já tem uma conta?{" "}
             <Link
               to="/login"
-              className="font-bold text-primary hover:text-accent-yellow transition-colors inline-flex items-center gap-1"
+              className="font-bold text-primary hover:text-primary-dark transition-colors inline-flex items-center gap-1"
             >
               Faça login
               <svg
@@ -410,7 +410,7 @@ export function Registrar() {
         {/* Footer decorativo */}
         <div className="mt-6 pt-4 border-t border-gray-200 text-center">
           <p className="text-xs text-gray-500">
-            🧸 Bem-vindo à família Clube Kids
+            🧸 Bem-vindo à família Toy Diversões
           </p>
         </div>
       </div>

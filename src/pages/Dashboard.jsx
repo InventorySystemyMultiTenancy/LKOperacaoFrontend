@@ -290,13 +290,22 @@ export function Dashboard() {
       </div>
     );
   }
-  const { usuario } = useAuth();
+  const { usuario, pode, temPermissoesPersonalizadas } = useAuth();
+  const isAdmin = usuario?.role === "ADMIN";
   
   // Verificar se o usuário tem permissão para acessar gestão de carrinhos
   const usuarioEmail = usuario?.email || '';
-  const emailsAutorizadosCarrinhos = ['eriky@lkoperacao.com', 'gerson@lkoperacao.com'];
+  const emailsAutorizadosCarrinhos = ['eriky@clubekids.com', 'gerson@clubekids.com'];
   const isEmailAutorizadoCarrinhos = emailsAutorizadosCarrinhos.includes(usuarioEmail.toLowerCase());
-  const podeAcessarCarrinhos = usuario?.role === 'ADMIN' || isEmailAutorizadoCarrinhos;
+  const podeAcessarCarrinhos = pode("carrinhos", usuario?.role === 'ADMIN' || isEmailAutorizadoCarrinhos);
+
+  // Seções do dashboard (usuário personalizado: escolhidas pelo ADMIN)
+  const verResumo = pode("dashboard.resumo", isAdmin);
+  const verBusca = pode("dashboard.buscaLojasMaquinas", true);
+  const verHistoricoMaquina = pode("dashboard.historicoMovimentacoes", isAdmin);
+  const verAlertasMaquinas = pode("dashboard.alertasMaquinas", isAdmin);
+  const verAlertasLojas = pode("dashboard.alertasLojas", isAdmin);
+  const verDistribuicaoLojas = pode("dashboard.distribuicaoLojas", isAdmin);
   
   const [stats, setStats] = useState({
     alertas: [],
@@ -372,30 +381,30 @@ export function Dashboard() {
 
   const carregarDados = useCallback(async () => {
     try {
-      const isAdmin = usuario?.role === "ADMIN";
-
       // Buscar dados mínimos para render inicial do dashboard
-      const requisicoes = [
-        api.get("/produtos").catch((err) => {
-          console.error("Erro ao carregar produtos:", err.message);
-          return { data: [] };
-        }),
-      ];
+      const produtosReq = api.get("/produtos").catch((err) => {
+        console.error("Erro ao carregar produtos:", err.message);
+        return { data: [] };
+      });
 
-      // Adicionar requisições de relatórios apenas para ADMIN
-      if (isAdmin) {
-        requisicoes.unshift(
-          api.get("/relatorios/alertas-estoque").catch((err) => {
-            console.error("Erro ao carregar alertas de máquinas:", err.message);
-            return { data: { alertas: [] } };
-          }),
-          api.get("/relatorios/balanco-semanal").catch((err) => {
-            console.error("Erro ao carregar balanço:", err.message);
-            return { data: null };
-          })
-        );
-        requisicoes.push(
-          (async () => {
+      // Relatórios só para quem pode ver as seções que dependem deles
+      const alertasReq =
+        verResumo || verAlertasMaquinas
+          ? api.get("/relatorios/alertas-estoque").catch((err) => {
+              console.error("Erro ao carregar alertas de máquinas:", err.message);
+              return { data: { alertas: [] } };
+            })
+          : Promise.resolve({ data: { alertas: [] } });
+      const balancoReq =
+        verResumo || verDistribuicaoLojas
+          ? api.get("/relatorios/balanco-semanal").catch((err) => {
+              console.error("Erro ao carregar balanço:", err.message);
+              return { data: null };
+            })
+          : Promise.resolve({ data: null });
+      const roteirosReq = !verResumo
+        ? Promise.resolve({ data: [] })
+        : (async () => {
             const hojeStr = new Date().toISOString().split("T")[0];
             const [fixoRes, bolinhaRes] = await Promise.all([
               api.get("/roteiros", { params: { data: "2026-02-24" } }).catch(() => ({ data: [] })),
@@ -409,22 +418,14 @@ export function Dashboard() {
               (r) => !zonasFixo.has((r.zona || "").toLowerCase().trim())
             );
             return { data: [...(fixoRes.data || []), ...bolinhasNaoDuplicadas] };
-          })()
-        );
-      }
+          })();
 
-      const resultados = await Promise.all(requisicoes);
-
-      let alertasRes, balancoRes, produtosRes, roteirosRes;
-
-      if (isAdmin) {
-        [alertasRes, balancoRes, produtosRes, roteirosRes] = resultados;
-      } else {
-        [produtosRes] = resultados;
-        alertasRes = { data: { alertas: [] } };
-        balancoRes = { data: null };
-        roteirosRes = { data: [] };
-      }
+      const [alertasRes, balancoRes, produtosRes, roteirosRes] = await Promise.all([
+        alertasReq,
+        balancoReq,
+        produtosReq,
+        roteirosReq,
+      ]);
 
       setStats({
         alertas: alertasRes.data?.alertas || [],
@@ -433,10 +434,16 @@ export function Dashboard() {
       });
       setProdutos(produtosRes.data || []);
       setRoteirosHoje(roteirosRes.data || []);
+
+      // Alertas de lojas dependem da lista de lojas (o ADMIN carrega ao abrir a busca)
+      if (temPermissoesPersonalizadas && verAlertasLojas) {
+        carregarLojasEMaquinas();
+      }
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
       setStats({ alertas: [], balanco: null, loading: false });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usuario]);
 
   useEffect(() => {
@@ -970,7 +977,7 @@ export function Dashboard() {
           }
 
           <div class="footer">
-            <p>Relatório gerado automaticamente pelo Sistema LK Operação</p>
+            <p>Relatório gerado automaticamente pelo Sistema ClubeKids</p>
           </div>
         </body>
       </html>
@@ -1322,7 +1329,7 @@ export function Dashboard() {
             </table>
             
             <div class="footer">
-              <p>LK Operação - Sistema de Gestão de Máquinas</p>
+              <p>ClubeKids - Sistema de Gestão de Máquinas</p>
               <p>Relatório gerado automaticamente pelo sistema</p>
             </div>
           </body>
@@ -1399,7 +1406,7 @@ export function Dashboard() {
               </table>
               
               <div style="margin-top: 15px; text-align: center; font-size: 10px; color: #6b7280;">
-                <p>LK Operação - Sistema de Gestão de Máquinas</p>
+                <p>ClubeKids - Sistema de Gestão de Máquinas</p>
               </div>
             </div>
           `,
@@ -1655,7 +1662,7 @@ export function Dashboard() {
           </div>
         )}
         
-        {/* Widget de Carrinho de Produtos */}
+        {/* Widget de Carrinho de Produtos: sempre visível para o funcionário devolver o próprio carrinho */}
         <div className="mb-8">
           <CarrinhoWidget 
             onDevolucaoClick={(carrinho) => {
@@ -1698,6 +1705,7 @@ export function Dashboard() {
               </svg>
               Atualizar
             </button>
+            {pode("veiculos", true) && (
             <button
               onClick={() => window.location.assign('/veiculos')}
               className="btn-primary flex items-center gap-2 w-full xs:w-auto justify-center"
@@ -1718,6 +1726,7 @@ export function Dashboard() {
               </svg>
               Veículos
             </button>
+            )}
           </div>
         </div>
 
@@ -1733,6 +1742,7 @@ export function Dashboard() {
               </div>
             </Link>
           )}
+          {pode("manutencoes", true) && (
           <Link to="/manutencoes" className="stat-card bg-linear-to-br from-blue-500 to-blue-700 p-4 sm:p-6 rounded-xl shadow-md flex flex-col justify-between min-h-30 hover:scale-105 transition-transform cursor-pointer relative">
             <div className="relative z-10 flex flex-col items-center justify-center h-full">
               <span className="text-5xl mb-2">🛠️</span>
@@ -1744,7 +1754,8 @@ export function Dashboard() {
               )}
             </div>
           </Link>
-          {usuario?.role === "ADMIN" && <>
+          )}
+          {verResumo && <>
             {(() => {
               const diasSemanaDisplay = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
               const diaVariantes = [
@@ -1860,6 +1871,7 @@ export function Dashboard() {
             </div>
           </>}
         </div>
+        {verBusca && (
         <div className="card-gradient mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
             <span className="text-3xl">🔍</span>
@@ -2125,7 +2137,7 @@ export function Dashboard() {
                       {maquinaSelecionada.capacidadePadrao || 0}
                     </p>
                   </div>
-                  {usuario?.role === "ADMIN" && (
+                  {verHistoricoMaquina && (
                     <div>
                       <p className="text-sm text-gray-600">Estoque Atual</p>
                       <p className="text-lg font-semibold">
@@ -2198,7 +2210,7 @@ export function Dashboard() {
               </div>
 
               {/* Movimentações - Apenas para ADMIN */}
-              {usuario?.role === "ADMIN" && (
+              {verHistoricoMaquina && (
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <span className="text-2xl">🔄</span>
@@ -2511,9 +2523,10 @@ export function Dashboard() {
             </div>
           )}
         </div>
+        )}
 
         {/* Alertas de Estoque - Apenas para ADMIN */}
-        {usuario?.role === "ADMIN" && stats.alertas.length > 0 && (
+        {verAlertasMaquinas && stats.alertas.length > 0 && (
           <div className="card mb-8 border-l-4 border-red-500" id="alertas-estoque-maquinas">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -2613,7 +2626,7 @@ export function Dashboard() {
         )}
 
         {/* Alertas de Estoque de Lojas - Apenas para ADMIN */}
-        {usuario?.role === "ADMIN" && alertasEstoqueLoja.length > 0 && (
+        {verAlertasLojas && alertasEstoqueLoja.length > 0 && (
           <div className="card mb-8 border-l-4 border-orange-500">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -2709,7 +2722,7 @@ export function Dashboard() {
         )}
 
         {/* Distribuição por Loja */}
-        {stats.balanco?.distribuicaoLojas?.length > 0 && (
+        {verDistribuicaoLojas && stats.balanco?.distribuicaoLojas?.length > 0 && (
           <div className="card">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -2878,6 +2891,7 @@ export function Dashboard() {
         )}
 
         {/* Ação Rápida com design destacado */}
+        {pode("movimentacoes", true) && (
         <div className="mt-8 flex justify-center">
           <Link
             to="/movimentacoes?nova=true"
@@ -2899,6 +2913,7 @@ export function Dashboard() {
             Registrar Nova Movimentação
           </Link>
         </div>
+        )}
       </div>
 
       {/* Modal de Edição de Estoque */}
@@ -3185,7 +3200,7 @@ export function Dashboard() {
               </button>
               <button
                 onClick={salvarEstoque}
-                className="px-6 py-3 bg-linear-to-r from-primary to-accent-yellow text-white rounded-lg font-semibold hover:shadow-lg transition-all flex items-center gap-2"
+                className="px-6 py-3 bg-linear-to-r from-primary to-accent-yellow text-black rounded-lg font-semibold hover:shadow-lg transition-all flex items-center gap-2"
                 disabled={salvandoEstoque}
               >
                 {salvandoEstoque ? (

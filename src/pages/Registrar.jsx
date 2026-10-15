@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
-const SENHA_ACESSO = "lkoperacao2025"; // Defina a senha de acesso aqui
+const SENHA_ACESSO = "clubekids2025"; // Defina a senha de acesso aqui
 
 export function Registrar() {
   const [senhaAcesso, setSenhaAcesso] = useState("");
@@ -174,7 +174,7 @@ export function Registrar() {
             <span className="text-gradient">Criar Conta</span>
           </h1>
           <p className="text-gray-600 text-sm">
-            Junte-se ao Sistema LK Operação 🧸
+            Junte-se ao Sistema Clube Kids 🧸
           </p>
         </div>
 
@@ -410,7 +410,7 @@ export function Registrar() {
         {/* Footer decorativo */}
         <div className="mt-6 pt-4 border-t border-gray-200 text-center">
           <p className="text-xs text-gray-500">
-            🧸 Bem-vindo à família LK Operação
+            🧸 Bem-vindo à família Clube Kids
           </p>
         </div>
       </div>

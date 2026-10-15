@@ -5,7 +5,8 @@ import { useAuth } from "../contexts/AuthContext";
 
 
 export function AlertaFinanceiro() {
-  const { usuario } = useAuth();
+  const { usuario, pode } = useAuth();
+  const podeVer = pode("financeiro", usuario?.role === "FINANCEIRO" || usuario?.role === "ADMIN");
   const navigate = useNavigate();
   const [valorAReceber, setValorAReceber] = useState(0);
   const [mostrar, setMostrar] = useState(true);
@@ -34,19 +35,19 @@ export function AlertaFinanceiro() {
   };
 
   useEffect(() => {
-    // Apenas para usuários FINANCEIRO ou ADMIN
-    if (usuario?.role === "FINANCEIRO" || usuario?.role === "ADMIN") {
+    // Apenas para usuários FINANCEIRO ou ADMIN (ou com a aba Financeiro liberada)
+    if (podeVer) {
       verificarPendentes();
       
       // Atualizar a cada 5 minutos
       const interval = setInterval(verificarPendentes, 5 * 60 * 1000);
       return () => clearInterval(interval);
     }
-  }, [usuario]);
+  }, [usuario, podeVer]);
 
   // Não mostrar se não for FINANCEIRO/ADMIN ou se não houver pendentes
 
-  if (!usuario || (usuario.role !== "FINANCEIRO" && usuario.role !== "ADMIN")) {
+  if (!usuario || !podeVer) {
     return null;
   }
 

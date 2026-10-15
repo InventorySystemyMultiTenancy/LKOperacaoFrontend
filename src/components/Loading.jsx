@@ -35,7 +35,7 @@ export function PageLoader() {
           </div>
         </div>
         <h2 className="text-2xl font-bold mb-2">
-          <span className="text-gradient">LK Operação</span>
+          <span className="text-gradient">Clube Kids</span>
         </h2>
         <p className="text-gray-600 animate-pulse">Carregando seu sistema...</p>
       </div>

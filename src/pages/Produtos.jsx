@@ -16,7 +16,8 @@ import { useAuth } from "../contexts/AuthContext";
 
 export function Produtos() {
   const navigate = useNavigate();
-  const { usuario } = useAuth();
+  const { usuario, pode } = useAuth();
+  const podeGerenciar = pode("produtos.gerenciar", usuario?.role === "ADMIN");
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState(null);
@@ -197,7 +198,7 @@ export function Produtos() {
       label: "Ações",
       render: (produto) => (
         <div className="flex gap-2">
-          {usuario?.role === "ADMIN" && (
+          {podeGerenciar && (
             <>
               <button
                 onClick={() => navigate(`/produtos/${produto.id}/editar`)}
@@ -215,7 +216,7 @@ export function Produtos() {
               </button>
             </>
           )}
-          {usuario?.role !== "ADMIN" && (
+          {!podeGerenciar && (
             <span className="text-gray-400 text-sm">Somente visualização</span>
           )}
         </div>
@@ -235,7 +236,7 @@ export function Produtos() {
           subtitle="Gerencie os produtos (pelúcias) disponíveis no sistema"
           icon="🧸"
           action={
-            usuario?.role === "ADMIN"
+            podeGerenciar
               ? {
                   label: "Novo Produto",
                   onClick: () => navigate("/produtos/novo"),

@@ -173,8 +173,20 @@ export function Usuarios() {
                             : "bg-blue-100 text-blue-800"
                         }`}
                       >
-                        {usuario.role === "ADMIN" ? "Admin" : "Funcionário"}
+                        {usuario.role === "ADMIN"
+                          ? "Admin"
+                          : usuario.role === "FINANCEIRO"
+                          ? "Financeiro"
+                          : "Funcionário"}
                       </span>
+                      {usuario.role !== "ADMIN" && Array.isArray(usuario.permissoes) && (
+                        <span
+                          className="ml-2 px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800"
+                          title="Abas e funcionalidades escolhidas pelo administrador"
+                        >
+                          Acesso personalizado
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-600">
                       {usuario.telefone || "-"}

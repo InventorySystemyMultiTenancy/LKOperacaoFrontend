@@ -11,7 +11,7 @@ import { useAuth } from "../contexts/AuthContext";
 export function MaquinaDetalhes() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { usuario } = useAuth();
+  const { usuario, pode } = useAuth();
 
   const [maquina, setMaquina] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -184,7 +184,7 @@ export function MaquinaDetalhes() {
           }
           
           .header {
-            background: linear-gradient(to right, #15803D, #1E40AF);
+            background: linear-gradient(to right, #C91F24, #2457B1);
             color: white;
             padding: 40px;
             text-align: center;
@@ -217,7 +217,7 @@ export function MaquinaDetalhes() {
             padding: 15px;
             background: #f8f9fa;
             border-radius: 10px;
-            border-left: 4px solid #16A34A;
+            border-left: 4px solid #2457B1;
           }
           
           .info-item label {
@@ -280,7 +280,7 @@ export function MaquinaDetalhes() {
           }
           
           .venda-card.total {
-            background: linear-gradient(135deg, #15803D 0%, #1E40AF 100%);
+            background: linear-gradient(135deg, #C91F24 0%, #2457B1 100%);
             grid-column: 1 / -1;
             font-size: 1.2em;
           }
@@ -385,7 +385,7 @@ export function MaquinaDetalhes() {
           </div>
           
           <div class="footer">
-            <p><strong>Relatório gerado automaticamente pelo Sistema LK Operação</strong></p>
+            <p><strong>Relatório gerado automaticamente pelo Sistema ClubeKids</strong></p>
             <p>Data: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
           </div>
         </div>
@@ -589,7 +589,7 @@ export function MaquinaDetalhes() {
         </div>
 
         {/* Machine Pay */}
-        {maquina.machinePayPosId && (usuario?.role === "ADMIN" || usuario?.role === "FINANCEIRO") && (
+        {maquina.machinePayPosId && pode("maquinas.machinePay", usuario?.role === "ADMIN" || usuario?.role === "FINANCEIRO") && (
           <div className="card mt-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">💳 Machine Pay</h2>
 

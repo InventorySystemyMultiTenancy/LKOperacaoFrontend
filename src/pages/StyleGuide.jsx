@@ -155,23 +155,23 @@ export function StyleGuide() {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div className="card text-center">
               <div className="w-full h-24 bg-primary rounded-lg mb-3"></div>
-              <p className="font-bold text-sm">Verde LK</p>
-              <p className="text-xs text-gray-600">#16A34A</p>
+              <p className="font-bold text-sm">Primary Blue</p>
+              <p className="text-xs text-gray-600">#2457B1</p>
             </div>
             <div className="card text-center">
               <div className="w-full h-24 bg-accent-red rounded-lg mb-3"></div>
-              <p className="font-bold text-sm">Vermelho (alertas)</p>
-              <p className="text-xs text-gray-600">#DC2626</p>
+              <p className="font-bold text-sm">Accent Red</p>
+              <p className="text-xs text-gray-600">#ED3136</p>
             </div>
             <div className="card text-center">
               <div className="w-full h-24 bg-accent-yellow rounded-lg mb-3"></div>
-              <p className="font-bold text-sm">Azul LK</p>
-              <p className="text-xs text-gray-600">#2563EB</p>
+              <p className="font-bold text-sm">Accent Yellow</p>
+              <p className="text-xs text-gray-600">#FFCC00</p>
             </div>
             <div className="card text-center">
               <div className="w-full h-24 bg-background-light rounded-lg mb-3 border-2 border-gray-300"></div>
               <p className="font-bold text-sm">Background Light</p>
-              <p className="text-xs text-gray-600">#F7FEF9</p>
+              <p className="text-xs text-gray-600">#F2F2F2</p>
             </div>
             <div className="card text-center">
               <div className="w-full h-24 bg-background-dark rounded-lg mb-3"></div>

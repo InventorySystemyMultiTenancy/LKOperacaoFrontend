@@ -2,6 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import api from "../services/api";
+import {
+  CATALOGO_ABAS,
+  PERMISSOES_PADRAO_POR_ROLE,
+  chavesFilhas,
+} from "../utils/permissoes";
 
 export function UsuarioForm() {
   const { id } = useParams();
@@ -16,6 +21,9 @@ export function UsuarioForm() {
     telefone: "",
     role: "FUNCIONARIO",
     lojasPermitidas: [],
+    // false = acesso padrão do perfil; true = só o que estiver em `permissoes`
+    personalizado: false,
+    permissoes: [],
   });
 
   const [lojas, setLojas] = useState([]);
@@ -52,6 +60,8 @@ export function UsuarioForm() {
         telefone: usuario.telefone || "",
         role: usuario.role,
         lojasPermitidas: usuario.permissoesLojas?.map((p) => p.lojaId) || [],
+        personalizado: Array.isArray(usuario.permissoes),
+        permissoes: Array.isArray(usuario.permissoes) ? usuario.permissoes : [],
       });
     } catch (error) {
       setError("Erro ao carregar usuário");
@@ -78,6 +88,46 @@ export function UsuarioForm() {
     setFormData({ ...formData, lojasPermitidas: lojasAtuais });
   };
 
+  const setPermissoes = (permissoes) =>
+    setFormData((atual) => ({ ...atual, permissoes }));
+
+  const handlePersonalizadoChange = (personalizado) => {
+    setFormData((atual) => ({
+      ...atual,
+      personalizado,
+      // Começa pelo acesso padrão do perfil para o admin só ajustar
+      permissoes:
+        personalizado && atual.permissoes.length === 0
+          ? [...(PERMISSOES_PADRAO_POR_ROLE[atual.role] || [])]
+          : atual.permissoes,
+    }));
+  };
+
+  const handleAbaChange = (aba) => {
+    const atuais = formData.permissoes;
+    if (atuais.includes(aba.chave)) {
+      // Desmarcar a aba remove também suas funcionalidades/seções
+      const remover = [aba.chave, ...chavesFilhas(aba)];
+      setPermissoes(atuais.filter((p) => !remover.includes(p)));
+    } else {
+      // Dashboard sem seções ficaria vazio: marca todas por padrão
+      const secoes = (aba.secoes || []).map((s) => s.chave);
+      setPermissoes([...new Set([...atuais, aba.chave, ...secoes])]);
+    }
+  };
+
+  const handlePermissaoChange = (chave) => {
+    const atuais = formData.permissoes;
+    setPermissoes(
+      atuais.includes(chave)
+        ? atuais.filter((p) => p !== chave)
+        : [...atuais, chave]
+    );
+  };
+
+  const marcarTudo = () =>
+    setPermissoes(CATALOGO_ABAS.flatMap((aba) => [aba.chave, ...chavesFilhas(aba)]));
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -102,11 +152,14 @@ export function UsuarioForm() {
       return;
     }
 
+    const usaPersonalizado =
+      formData.role !== "ADMIN" && formData.personalizado;
+
     if (
-      formData.role === "FUNCIONARIO" &&
-      formData.lojasPermitidas.length === 0
+      usaPersonalizado &&
+      !CATALOGO_ABAS.some((aba) => formData.permissoes.includes(aba.chave))
     ) {
-      setError("Funcionários devem ter acesso a pelo menos uma loja");
+      setError("Selecione pelo menos uma aba para o usuário");
       return;
     }
 
@@ -120,6 +173,8 @@ export function UsuarioForm() {
         role: formData.role,
         lojasPermitidas:
           formData.role === "FUNCIONARIO" ? formData.lojasPermitidas : [],
+        // null = volta ao acesso padrão do perfil
+        permissoes: usaPersonalizado ? formData.permissoes : null,
       };
 
       // Só incluir senha se foi preenchida
@@ -305,7 +360,7 @@ export function UsuarioForm() {
             {formData.role === "FUNCIONARIO" && (
               <div>
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                  Lojas Autorizadas *
+                  Lojas Autorizadas
                 </h2>
 
                 <div className="space-y-2 max-h-64 overflow-y-auto border border-gray-300 rounded-lg p-4">
@@ -332,6 +387,167 @@ export function UsuarioForm() {
                   <p className="mt-2 text-sm text-gray-600">
                     {formData.lojasPermitidas.length} loja(s) selecionada(s)
                   </p>
+                )}
+              </div>
+            )}
+
+            {/* Abas e funcionalidades (ADMIN sempre tem acesso total) */}
+            {formData.role !== "ADMIN" && (
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  Abas e Funcionalidades
+                </h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                  <label
+                    className={`flex items-start gap-3 p-3 border rounded-lg cursor-pointer ${
+                      !formData.personalizado
+                        ? "border-primary bg-primary/5"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="personalizado"
+                      checked={!formData.personalizado}
+                      onChange={() => handlePersonalizadoChange(false)}
+                      className="mt-1"
+                    />
+                    <span>
+                      <span className="block font-medium text-gray-900">
+                        Padrão do perfil
+                      </span>
+                      <span className="block text-sm text-gray-500">
+                        Acesso definido pelo tipo de usuário
+                      </span>
+                    </span>
+                  </label>
+                  <label
+                    className={`flex items-start gap-3 p-3 border rounded-lg cursor-pointer ${
+                      formData.personalizado
+                        ? "border-primary bg-primary/5"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="personalizado"
+                      checked={formData.personalizado}
+                      onChange={() => handlePersonalizadoChange(true)}
+                      className="mt-1"
+                    />
+                    <span>
+                      <span className="block font-medium text-gray-900">
+                        Personalizado
+                      </span>
+                      <span className="block text-sm text-gray-500">
+                        Escolher quais abas e funcionalidades o usuário vê
+                      </span>
+                    </span>
+                  </label>
+                </div>
+
+                {formData.personalizado && (
+                  <>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <button
+                        type="button"
+                        onClick={marcarTudo}
+                        className="btn-outline text-sm"
+                      >
+                        Marcar tudo
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPermissoes([])}
+                        className="btn-outline text-sm"
+                      >
+                        Limpar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPermissoes([
+                            ...(PERMISSOES_PADRAO_POR_ROLE[formData.role] || []),
+                          ])
+                        }
+                        className="btn-outline text-sm"
+                      >
+                        Restaurar padrão do perfil
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {CATALOGO_ABAS.map((aba) => {
+                        const abaMarcada = formData.permissoes.includes(aba.chave);
+                        const filhas = [
+                          ...(aba.secoes || []),
+                          ...(aba.funcionalidades || []),
+                        ];
+
+                        return (
+                          <div
+                            key={aba.chave}
+                            className={`border rounded-lg p-3 ${
+                              abaMarcada
+                                ? "border-primary bg-primary/5"
+                                : "border-gray-300"
+                            } ${aba.chave === "dashboard" ? "md:col-span-2" : ""}`}
+                          >
+                            <label className="flex items-center gap-3 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={abaMarcada}
+                                onChange={() => handleAbaChange(aba)}
+                                className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                              />
+                              <span className="font-medium text-gray-900">
+                                {aba.label}
+                              </span>
+                            </label>
+
+                            {filhas.length > 0 && (
+                              <div
+                                className={`mt-2 ml-7 space-y-1 ${
+                                  aba.chave === "dashboard"
+                                    ? "grid grid-cols-1 sm:grid-cols-2 gap-x-4 space-y-0"
+                                    : ""
+                                } ${abaMarcada ? "" : "opacity-50"}`}
+                              >
+                                {aba.chave === "dashboard" && (
+                                  <p className="text-xs font-semibold uppercase text-gray-500 sm:col-span-2 mb-1">
+                                    O que pode ver no dashboard
+                                  </p>
+                                )}
+                                {filhas.map((item) => (
+                                  <label
+                                    key={item.chave}
+                                    className={`flex items-start gap-2 text-sm text-gray-700 py-0.5 ${
+                                      abaMarcada ? "cursor-pointer" : "cursor-not-allowed"
+                                    }`}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={formData.permissoes.includes(item.chave)}
+                                      onChange={() => handlePermissaoChange(item.chave)}
+                                      disabled={!abaMarcada}
+                                      className="h-4 w-4 mt-0.5 text-primary focus:ring-primary border-gray-300 rounded"
+                                    />
+                                    <span>{item.label}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <p className="mt-2 text-sm text-gray-500">
+                      A aba de Usuários é sempre exclusiva do administrador.
+                      As mudanças valem no próximo carregamento da página do usuário.
+                    </p>
+                  </>
                 )}
               </div>
             )}

@@ -138,7 +138,9 @@ function calcularProgressoMaquinasRoteiro(roteiro) {
 }
 
 export function SelecionarRoteiro() {
-  const { usuario } = useAuth();
+  const { usuario, pode } = useAuth();
+  // Admin ou usuário com a funcionalidade "movimentacoes.gerenciar"
+  const podeGerenciarMov = pode("movimentacoes.gerenciar", usuario?.role === "ADMIN");
   // Função para desfazer finalização do roteiro (apenas admin)
   const desfazerFinalizacao = async (roteiroId) => {
     if (!window.confirm("Deseja realmente desfazer a finalização deste roteiro?")) return;
@@ -217,22 +219,22 @@ export function SelecionarRoteiro() {
   }, []);
 
   useEffect(() => {
-    if (usuario?.role === "ADMIN") {
+    if (podeGerenciarMov) {
       carregarAlertasRoteirosIncompletos();
     }
   }, [usuario]);
 
   useEffect(() => {
-    if (usuario?.role !== "ADMIN") return;
+    if (!podeGerenciarMov) return;
 
     carregarLocalizacoesRotas();
     const intervalId = window.setInterval(carregarLocalizacoesRotas, 15000);
 
     return () => window.clearInterval(intervalId);
-  }, [usuario?.role]);
+  }, [podeGerenciarMov]);
 
   const carregarAlertasRoteirosIncompletos = async (dataSelecionada) => {
-    if (usuario?.role !== "ADMIN") return;
+    if (!podeGerenciarMov) return;
     try {
       setLoadingAlertas(true);
       const params = dataSelecionada ? { data: dataSelecionada } : {};
@@ -572,7 +574,7 @@ export function SelecionarRoteiro() {
   }
 
   // Roteiros de bolinha e gruas gigantes só aparecem para o funcionário atribuído (exceto admin)
-  if (usuario?.role !== "ADMIN") {
+  if (!podeGerenciarMov) {
     roteirosFiltrados = roteirosFiltrados.filter(r => {
       const zona = (r.zona || "").toLowerCase();
       if (zona.startsWith("bolinha") || zona === "gruas gigantes") {
@@ -612,7 +614,7 @@ export function SelecionarRoteiro() {
   });
 
   // Verificar se usuário é admin
-  const isAdmin = usuario?.role === "ADMIN";
+  const isAdmin = podeGerenciarMov;
 
   function permissaoNaoBloqueada(roteiro, permissao) {
     return roteiro?.[permissao] !== false;
@@ -1113,7 +1115,7 @@ export function SelecionarRoteiro() {
               icon="🗺️"
               title="Nenhum roteiro disponível"
               message={
-                usuario?.role === "ADMIN"
+                podeGerenciarMov
                   ? "Clique em 'Gerar 6 Roteiros Diários' para criar os roteiros de hoje."
                   : "Aguarde um administrador gerar os roteiros do dia."
               }
@@ -1320,7 +1322,7 @@ export function SelecionarRoteiro() {
                       </p>
                     </div>
                     {/* Botão de desfazer finalização para admin */}
-                    {usuario?.role === "ADMIN" && (
+                    {podeGerenciarMov && (
                       <div className="mt-4 space-y-2">
                         {podeAdicionarLojas(roteiro) && (
                           <button

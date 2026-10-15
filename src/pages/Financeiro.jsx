@@ -7,7 +7,7 @@ import { PageLoader, EmptyState } from "../components/Loading";
 import { useAuth } from "../contexts/AuthContext";
 
 export function Financeiro() {
-  const { usuario } = useAuth();
+  const { usuario, pode } = useAuth();
   const [movimentacoes, setMovimentacoes] = useState([]);
   const [lojasAReceber, setLojasAReceber] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -246,7 +246,7 @@ export function Financeiro() {
                             <div className="space-y-2">
                               <input type="number" step="0.01" placeholder="Notas" value={valores.valorEntradaNotas} onChange={(e) => setValores({ ...valores, valorEntradaNotas: e.target.value })} className="w-full px-2 py-1 border rounded text-sm" />
                               <input type="number" step="0.01" placeholder="Digital" value={valores.valorEntradaCartao} onChange={(e) => setValores({ ...valores, valorEntradaCartao: e.target.value })} className="w-full px-2 py-1 border rounded text-sm" />
-                              {Boolean(mov.machinePayPosId) && (() => {
+                              {Boolean(mov.machinePayPosId) && pode("financeiro.machinePay", true) && (() => {
                                 const precisaDataInicio = mov.machinePayPrecisaDataInicio === true;
                                 return (
                                   <div className="space-y-1">

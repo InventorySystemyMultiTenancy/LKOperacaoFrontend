@@ -258,6 +258,6 @@ Para aplicar o design em outras páginas:
 
 ---
 
-**🧸 Divirta-se desenvolvendo com o sistema LK Operação!**
+**🧸 Divirta-se desenvolvendo com o sistema Agarra Mais!**
 
 Para dúvidas, consulte o `/style-guide` ou a documentação em `DESIGN.md`

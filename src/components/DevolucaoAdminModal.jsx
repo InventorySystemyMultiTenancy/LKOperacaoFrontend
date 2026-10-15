@@ -9,8 +9,9 @@ export function DevolucaoAdminModal({ carrinho, onClose, onSuccess }) {
       produtoId: item.produto.id,
       produtoNome: item.produto.nome,
       produtoCodigo: item.produto.codigo,
-      quantidadeEsperada: item.quantidadeAtual,
-      quantidadeDevolvida: item.quantidadeAtual // Pré-preenchido com valor esperado
+      quantidadeUsada: item.quantidadeUsada || 0,
+      quantidadeEsperada: item.quantidadeEsperada ?? item.quantidadeAtual,
+      quantidadeDevolvida: item.quantidadeEsperada ?? item.quantidadeAtual // Pré-preenchido com valor esperado
     })) || []
   );
   const [observacao, setObservacao] = useState('');
@@ -39,11 +40,10 @@ export function DevolucaoAdminModal({ carrinho, onClose, onSuccess }) {
     // Calcular totais e discrepâncias
     const totalEsperado = itensDevolucao.reduce((sum, item) => sum + item.quantidadeEsperada, 0);
     const totalDevolvido = itensDevolucao.reduce((sum, item) => sum + item.quantidadeDevolvida, 0);
-    const discrepanciaTotal = totalDevolvido - totalEsperado;
-    
-    // Detectar discrepâncias por produto
+
+    // Só há discrepância quando devolveu menos que o esperado (a mais não conta)
     const produtosComDiscrepancia = itensDevolucao.filter(
-      item => item.quantidadeDevolvida !== item.quantidadeEsperada
+      item => item.quantidadeDevolvida < item.quantidadeEsperada
     );
 
     // Confirmação extra
@@ -57,7 +57,7 @@ export function DevolucaoAdminModal({ carrinho, onClose, onSuccess }) {
           <p class="mb-2"><strong>Total esperado:</strong> ${totalEsperado} unidades</p>
           ${produtosComDiscrepancia.length > 0 ? `
             <div class="bg-yellow-100 p-2 rounded mt-2">
-              <p class="text-sm text-yellow-800">⚠️ ${produtosComDiscrepancia.length} produto(s) com discrepância</p>
+              <p class="text-sm text-yellow-800">⚠️ ${produtosComDiscrepancia.length} produto(s) devolvido(s) a menos</p>
             </div>
           ` : ''}
           <p class="text-red-600 font-semibold mt-4">⚠️ Esta ação não pode ser desfeita!</p>
@@ -109,7 +109,7 @@ export function DevolucaoAdminModal({ carrinho, onClose, onSuccess }) {
                 <p class="text-sm font-bold mb-2">⚠️ Produtos com discrepância:</p>
                 ${discrepancias.map(item => `
                   <p class="text-sm">
-                    ${item.produtoNome}: ${item.discrepancia > 0 ? '+' : ''}${item.discrepancia} unidades
+                    ${item.produto?.nome || 'Produto'}: faltaram ${Math.abs(item.discrepancia)} unidades
                   </p>
                 `).join('')}
               </div>
@@ -242,8 +242,8 @@ export function DevolucaoAdminModal({ carrinho, onClose, onSuccess }) {
               
               <div className="space-y-3">
                 {itensDevolucao.map((item, index) => {
-                  const temDiscrepancia = item.quantidadeDevolvida !== item.quantidadeEsperada;
                   const discrepancia = item.quantidadeDevolvida - item.quantidadeEsperada;
+                  const temDiscrepancia = discrepancia < 0;
                   
                   return (
                     <div 
@@ -257,8 +257,9 @@ export function DevolucaoAdminModal({ carrinho, onClose, onSuccess }) {
                             <p className="text-xs text-gray-500">Código: {item.produtoCodigo}</p>
                           )}
                         </div>
-                        <div className="text-sm text-gray-600">
-                          Esperado: <strong>{item.quantidadeEsperada}</strong>
+                        <div className="text-sm text-gray-600 text-right">
+                          <div>Usou: <strong>{item.quantidadeUsada}</strong></div>
+                          <div>Deve devolver: <strong>{item.quantidadeEsperada}</strong></div>
                         </div>
                       </div>
                       
@@ -280,8 +281,8 @@ export function DevolucaoAdminModal({ carrinho, onClose, onSuccess }) {
                       
                       {temDiscrepancia && (
                         <div className="mt-2 text-sm">
-                          <span className={`font-semibold ${discrepancia > 0 ? 'text-blue-600' : 'text-red-600'}`}>
-                            {discrepancia > 0 ? '↑ Sobra' : '↓ Falta'} de {Math.abs(discrepancia)} unidade(s)
+                          <span className="font-semibold text-red-600">
+                            ↓ Falta de {Math.abs(discrepancia)} unidade(s)
                           </span>
                         </div>
                       )}
@@ -291,7 +292,7 @@ export function DevolucaoAdminModal({ carrinho, onClose, onSuccess }) {
               </div>
               
               <p className="text-sm text-gray-500 mt-3">
-                Digite a quantidade devolvida para cada produto. Valores diferentes do esperado gerarão alertas.
+                Digite a quantidade devolvida para cada produto. Devolver menos que o esperado gera alerta; devolver a mais não.
               </p>
             </div>
 

@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../services/api";
 import { AlertBox, PageHeader } from "../components/UIComponents";
 import { PageLoader } from "../components/Loading";
 import { Navbar } from "../components/Navbar";
 import { useAuth } from "../contexts/AuthContext";
+import {
+  enviarWhatsapp,
+  formatarMaquinaManutencao,
+  montarTextoWhatsapp,
+} from "../utils/whatsappManutencao";
 
 const normalizarStatusManutencao = status => String(status || "").trim().toLowerCase();
 const isUrgente = status => normalizarStatusManutencao(status) === "urgente";
@@ -11,6 +17,24 @@ const isConcluida = status => {
   const statusNormalizado = normalizarStatusManutencao(status);
   return statusNormalizado === "feito" || statusNormalizado === "concluida";
 };
+
+function BotaoWhatsapp({ onClick, compacto = false }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title="Enviar pelo WhatsApp"
+      className={`inline-flex items-center gap-1.5 rounded-lg bg-[#25D366] font-semibold text-white hover:bg-[#1ebe5b] ${
+        compacto ? "px-2.5 py-1.5 text-xs" : "px-4 py-2 text-sm"
+      }`}
+    >
+      <svg className={compacto ? "h-4 w-4" : "h-5 w-5"} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.21-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.21 3.08.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.23 1.36.2 1.87.12.57-.08 1.76-.72 2.01-1.42.25-.7.25-1.29.17-1.42-.07-.12-.27-.2-.57-.35zM12.05 21.5h-.01a9.4 9.4 0 0 1-4.8-1.32l-.34-.2-3.57.94.95-3.48-.22-.36a9.4 9.4 0 0 1-1.44-5.02c0-5.2 4.23-9.43 9.44-9.43a9.37 9.37 0 0 1 6.67 2.77 9.37 9.37 0 0 1 2.76 6.67c0 5.2-4.24 9.43-9.44 9.43zm8.03-17.46A11.27 11.27 0 0 0 12.05.72C5.8.72.7 5.8.7 12.07c0 2 .52 3.95 1.52 5.67L.6 23.6l6-1.57a11.32 11.32 0 0 0 5.43 1.38h.01c6.26 0 11.35-5.09 11.35-11.35 0-3.03-1.18-5.88-3.32-8.02z" />
+      </svg>
+      {compacto ? "Enviar" : "Enviar no WhatsApp"}
+    </button>
+  );
+}
 
 function Manutencoes() {
       const [novaManutencaoUrgente, setNovaManutencaoUrgente] = useState(false);
@@ -88,7 +112,7 @@ function Manutencoes() {
         setLoading(false);
       }
     }
-  const { usuario } = useAuth();
+  const { usuario, pode, temPermissoesPersonalizadas } = useAuth();
   // ...existing code...
   const [funcionarios, setFuncionarios] = useState([]);
   const [editando, setEditando] = useState(false);
@@ -226,16 +250,23 @@ function Manutencoes() {
 
   // Abas de filtro: pendentes/urgentes
   const [abaManutencao, setAbaManutencao] = useState("pendentes");
+  // Aba de recorrência: máquinas com várias manutenções num período curto
+  const [periodoRecorrencia, setPeriodoRecorrencia] = useState(30);
+  const [minimoRecorrencia, setMinimoRecorrencia] = useState(3);
+  const [recorrenciaAberta, setRecorrenciaAberta] = useState(null);
 
   // Reinicia a paginação de "feitas" sempre que os filtros mudam
   useEffect(() => {
     setLimiteFeitas(LIMITE_FEITAS_INICIAL);
   }, [filtroLoja, filtroStatus, filtroDataInicio, filtroDataFim, abaManutencao]);
 
-  // Se não for admin, mostrar apenas manutenções atribuídas ao usuário logado
-  const isAdmin = usuario?.role === "ADMIN";
+  const podeGerenciar = pode("manutencoes.gerenciar", usuario?.role === "ADMIN");
+  const podeAtualizar = pode("manutencoes.atualizar", true);
+  // Usuário personalizado com a aba liberada vê todas, mesmo sendo FUNCIONARIO.
+  // Os demais sem "gerenciar" veem apenas as atribuídas a eles.
+  const podeVerTodas = podeGerenciar || temPermissoesPersonalizadas;
   let filtradas = manutencoes.filter(m => {
-    if (!isAdmin) {
+    if (!podeVerTodas) {
       // Funcionário só vê as suas e apenas as que não estão feitas
       if (m.funcionarioId !== usuario?.id) return false;
       if (isConcluida(m.status)) return false;
@@ -261,7 +292,7 @@ function Manutencoes() {
   // Para admin, limitar as manutenções feitas exibidas (com botão "mostrar mais")
   let totalFeitas = 0;
   let temMaisFeitas = false;
-  if (isAdmin && (!filtroStatus || isConcluida(filtroStatus))) {
+  if (podeVerTodas && (!filtroStatus || isConcluida(filtroStatus))) {
     const feitas = filtradas.filter(m => isConcluida(m.status));
     const outras = filtradas.filter(m => !isConcluida(m.status));
     // Ordenar por data decrescente
@@ -284,6 +315,7 @@ function Manutencoes() {
     return "Endereço não cadastrado";
   };
 
+
   const formatLojaNome = loja => (loja?.nome ? loja.nome : "-");
 
   const formatLojaEnderecoSuffix = loja => {
@@ -298,7 +330,7 @@ function Manutencoes() {
 
   // ALERTA DE MANUTENÇÕES FREQUENTES
   let alertasFrequentes = [];
-  if (isAdmin && manutencoes.length > 0) {
+  if (podeGerenciar && manutencoes.length > 0) {
     const agora = new Date();
     const seteDiasAtras = new Date(agora.getTime() - 7 * 24 * 60 * 60 * 1000);
     // Agrupar por máquina
@@ -325,19 +357,60 @@ function Manutencoes() {
       });
   }
 
+  // RECORRÊNCIA: máquinas com `minimoRecorrencia`+ manutenções nos últimos `periodoRecorrencia` dias
+  const recorrencias = (() => {
+    if (!podeVerTodas) return [];
+    const inicioPeriodo = new Date(Date.now() - periodoRecorrencia * 24 * 60 * 60 * 1000);
+    const porMaquina = {};
+    manutencoes.forEach(m => {
+      if (!m.maquina?.id) return;
+      if (filtroLoja && m.loja?.nome !== filtroLoja) return;
+      if (new Date(m.createdAt) < inicioPeriodo) return;
+      if (!porMaquina[m.maquina.id]) porMaquina[m.maquina.id] = [];
+      porMaquina[m.maquina.id].push(m);
+    });
+    return Object.entries(porMaquina)
+      .filter(([, lista]) => lista.length >= minimoRecorrencia)
+      .map(([maquinaId, lista]) => {
+        lista.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        return {
+          maquinaId,
+          maquina: lista[0].maquina,
+          loja: lista[0].loja,
+          manutencoes: lista,
+          pendentes: lista.filter(m => !isConcluida(m.status)).length,
+          ultima: lista[0].createdAt,
+          // Dobro do mínimo ou mais = crítico
+          critico: lista.length >= minimoRecorrencia * 2,
+        };
+      })
+      .sort((a, b) => b.manutencoes.length - a.manutencoes.length || new Date(b.ultima) - new Date(a.ultima));
+  })();
+
   return (
     <div className="min-h-screen bg-background-light bg-pattern teddy-pattern">
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <PageHeader title="Manutenções" subtitle="Acompanhe todas as manutenções registradas" icon="🛠️" />
-        {isAdmin && (
+        <PageHeader
+          title="Manutenções"
+          subtitle="Acompanhe todas as manutenções registradas"
+          icon="🛠️"
+          action={
+            pode("machinePay", usuario?.role === "ADMIN" || usuario?.role === "FINANCEIRO") ? (
+              <Link to="/machine-pay" className="btn-secondary flex items-center gap-2">
+                📡 Machine Pay
+              </Link>
+            ) : null
+          }
+        />
+        {podeGerenciar && (
           <div className="mb-4">
             <button className="btn-primary" onClick={() => setShowNovaManutencao(true)}>Nova Manutenção</button>
           </div>
         )}
         {error && <AlertBox type="error" message={error} onClose={() => setError("")} />}
         {success && <AlertBox type="success" message={success} onClose={() => setSuccess("")} />}
-        {isAdmin && alertasFrequentes.length > 0 && (
+        {podeGerenciar && alertasFrequentes.length > 0 && (
           <div className="mb-4">
             {alertasFrequentes.map((msg, idx) => (
               <AlertBox key={idx} type="warning" message={msg} />
@@ -357,11 +430,46 @@ function Manutencoes() {
               onClick={() => setAbaManutencao("urgentes")}
               type="button"
             >Urgentes</button>
+            {podeVerTodas && (
+              <button
+                className={`btn-secondary ${abaManutencao === "recorrencia" ? "bg-orange-500 text-white" : "bg-gray-200"}`}
+                onClick={() => setAbaManutencao("recorrencia")}
+                type="button"
+              >
+                🔁 Recorrência
+                {recorrencias.length > 0 && (
+                  <span className="ml-2 inline-flex items-center justify-center rounded-full bg-orange-600 text-white text-xs font-bold px-2 py-0.5">
+                    {recorrencias.length}
+                  </span>
+                )}
+              </button>
+            )}
           </div>
           <select className="input-field" value={filtroLoja} onChange={e => setFiltroLoja(e.target.value)}>
             <option value="">Todas as lojas</option>
             {lojas.map(loja => <option key={loja} value={loja}>{loja}</option>)}
           </select>
+          {abaManutencao === "recorrencia" ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <label className="text-sm text-gray-500">Período</label>
+              <select
+                className="input-field"
+                value={periodoRecorrencia}
+                onChange={e => setPeriodoRecorrencia(Number(e.target.value))}
+              >
+                {[7, 15, 30, 60, 90].map(d => <option key={d} value={d}>Últimos {d} dias</option>)}
+              </select>
+              <label className="text-sm text-gray-500">Mínimo</label>
+              <select
+                className="input-field"
+                value={minimoRecorrencia}
+                onChange={e => setMinimoRecorrencia(Number(e.target.value))}
+              >
+                {[2, 3, 4, 5, 6, 8, 10].map(n => <option key={n} value={n}>{n} manutenções</option>)}
+              </select>
+            </div>
+          ) : (
+          <>
           <select className="input-field" value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)}>
             <option value="">Todos os status</option>
             {statusList.map(status => <option key={status} value={status}>{status}</option>)}
@@ -393,6 +501,8 @@ function Manutencoes() {
               </button>
             )}
           </div>
+          </>
+          )}
         </div>
         {showNovaManutencao && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
@@ -474,7 +584,82 @@ function Manutencoes() {
             </form>
           </div>
         )}
-        {loading ? <PageLoader /> : (
+        {loading ? <PageLoader /> : abaManutencao === "recorrencia" ? (
+          <div className="space-y-3">
+            <p className="text-sm text-gray-600">
+              Máquinas com {minimoRecorrencia} ou mais manutenções nos últimos {periodoRecorrencia} dias
+              {filtroLoja ? ` na loja ${filtroLoja}` : ""}. Clique para ver o histórico.
+            </p>
+            {recorrencias.length === 0 && (
+              <div className="bg-white rounded-lg shadow text-center text-gray-400 py-8">
+                Nenhuma máquina com manutenções recorrentes neste período
+              </div>
+            )}
+            {recorrencias.map(r => {
+              const aberta = recorrenciaAberta === r.maquinaId;
+              return (
+                <div
+                  key={r.maquinaId}
+                  className={`bg-white rounded-lg shadow border-l-4 ${r.critico ? "border-red-500" : "border-orange-400"}`}
+                >
+                  <button
+                    type="button"
+                    className="w-full text-left p-4 flex flex-wrap items-center justify-between gap-3 hover:bg-orange-50 rounded-lg"
+                    onClick={() => setRecorrenciaAberta(aberta ? null : r.maquinaId)}
+                  >
+                    <div className="min-w-0">
+                      <div className="font-bold text-gray-900 flex items-center gap-2">
+                        {r.critico ? "🚨" : "⚠️"} {r.maquina?.nome || "Máquina sem nome"}
+                        {r.critico && (
+                          <span className="text-xs font-semibold bg-red-100 text-red-700 rounded-full px-2 py-0.5">Crítico</span>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {formatLojaNome(r.loja)}{formatLojaEnderecoSuffix(r.loja)}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm">
+                      <div className="text-center">
+                        <div className={`text-2xl font-bold ${r.critico ? "text-red-600" : "text-orange-600"}`}>
+                          {r.manutencoes.length}
+                        </div>
+                        <div className="text-xs text-gray-500">em {periodoRecorrencia} dias</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-gray-700">{r.pendentes}</div>
+                        <div className="text-xs text-gray-500">pendente(s)</div>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Última: {new Date(r.ultima).toLocaleDateString("pt-BR")}
+                      </div>
+                      <span className="text-gray-400">{aberta ? "▲" : "▼"}</span>
+                    </div>
+                  </button>
+                  {aberta && (
+                    <ul className="border-t divide-y divide-gray-100">
+                      {r.manutencoes.map(m => (
+                        <li
+                          key={m.id}
+                          className="px-4 py-2 flex flex-wrap justify-between gap-2 text-sm cursor-pointer hover:bg-blue-50"
+                          onClick={() => setDetalhe(m)}
+                        >
+                          <span className="text-gray-900">{m.descricao}</span>
+                          <span className="flex gap-3 text-gray-500">
+                            <span>{new Date(m.createdAt).toLocaleString("pt-BR")}</span>
+                            <span>{m.funcionario?.nome || "-"}</span>
+                            <span className={`font-semibold ${isConcluida(m.status) ? "text-green-700" : isUrgente(m.status) ? "text-red-600" : "text-gray-700"}`}>
+                              {m.status}
+                            </span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
           <div className="overflow-x-auto bg-white rounded-lg shadow">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -487,6 +672,7 @@ function Manutencoes() {
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Máquina</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Atribuído a</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">WhatsApp</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -496,7 +682,7 @@ function Manutencoes() {
                     className={
                       `hover:bg-blue-50 cursor-pointer` +
                       (isUrgente(m.status) ? " bg-red-100 border-l-4 border-red-500 animate-pulse" : "") +
-                      (isAdmin && isConcluida(m.status) ? " bg-green-100" : "")
+                      (podeVerTodas && isConcluida(m.status) ? " bg-green-100" : "")
                     }
                     onClick={() => setDetalhe(m)}
                   >
@@ -512,10 +698,13 @@ function Manutencoes() {
                         <span className="text-green-700">{m.status}</span>
                       ) : m.status}
                     </td>
+                    <td className="px-4 py-2" onClick={e => e.stopPropagation()}>
+                      <BotaoWhatsapp compacto onClick={() => enviarWhatsapp(montarTextoWhatsapp(m))} />
+                    </td>
                   </tr>
                 ))}
                 {filtradas.length === 0 && (
-                  <tr><td colSpan={7} className="text-center text-gray-400 py-8">Nenhuma manutenção encontrada</td></tr>
+                  <tr><td colSpan={8} className="text-center text-gray-400 py-8">Nenhuma manutenção encontrada</td></tr>
                 )}
               </tbody>
             </table>
@@ -548,12 +737,16 @@ function Manutencoes() {
                 <div><strong>Status:</strong> {detalhe.status}</div>
                 <div><strong>Loja:</strong> {formatLojaNome(detalhe.loja)} </div>
                 <div><strong>Endereço:</strong> {formatarEnderecoLoja(detalhe.loja)} </div>
-                <div><strong>Máquina:</strong> {detalhe.maquina?.nome || '-'} </div>
+                <div><strong>Máquina:</strong> {formatarMaquinaManutencao(detalhe.maquina) || '-'} </div>
+                <div><strong>Atribuído a:</strong> {detalhe.funcionario?.nome || '-'} </div>
               </div>
-              <div className="flex gap-2 mt-6">
-                <button className="btn-primary" onClick={handleEditOpen}>Editar</button>
-                {isAdmin && <button className="btn-danger" onClick={handleDelete}>Excluir</button>}
-                {(isAdmin || (!isAdmin && !isConcluida(detalhe.status))) && !isConcluida(detalhe.status) && (
+              <div className="mt-4">
+                <BotaoWhatsapp onClick={() => enviarWhatsapp(montarTextoWhatsapp(detalhe))} />
+              </div>
+              <div className="flex flex-wrap gap-2 mt-4">
+                {podeAtualizar && <button className="btn-primary" onClick={handleEditOpen}>Editar</button>}
+                {podeGerenciar && <button className="btn-danger" onClick={handleDelete}>Excluir</button>}
+                {podeAtualizar && (podeGerenciar || (!podeGerenciar && !isConcluida(detalhe.status))) && !isConcluida(detalhe.status) && (
                   <button className="btn-success" onClick={async () => {
                     try {
                       setLoading(true);

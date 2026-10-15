@@ -16,7 +16,7 @@ import { PageLoader, EmptyState } from "../components/Loading";
 
 export function Maquinas() {
   const navigate = useNavigate();
-  const { usuario } = useAuth();
+  const { usuario, pode } = useAuth();
   const [maquinas, setMaquinas] = useState([]);
   const [lojas, setLojas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -215,7 +215,7 @@ export function Maquinas() {
           subtitle="Gerencie as máquinas de pelúcia das lojas"
           icon="🎰"
           action={
-            usuario?.role === "ADMIN"
+            pode("maquinas.gerenciar", usuario?.role === "ADMIN")
               ? {
                   label: "Nova Máquina",
                   onClick: () => navigate("/maquinas/nova"),

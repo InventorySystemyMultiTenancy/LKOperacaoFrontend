@@ -133,7 +133,7 @@ function RoteiroMapaLocalizacao({ localizacao, grande = false, onClick }) {
 }
 
 export function Roteiros() {
-  const { usuario } = useAuth();
+  const { usuario, pode } = useAuth();
   const navigate = useNavigate();
   
   const [roteiros, setRoteiros] = useState([]);
@@ -157,14 +157,17 @@ export function Roteiros() {
     carregarTodasLojas();
   }, []);
 
+  const podeGerenciarRoteiros = pode("roteiros.gerenciar", usuario?.role === "ADMIN");
+
   useEffect(() => {
-    if (usuario?.role !== "ADMIN") return;
+    if (!podeGerenciarRoteiros) return;
 
     carregarLocalizacoesRotas();
     const intervalId = window.setInterval(carregarLocalizacoesRotas, 15000);
 
     return () => window.clearInterval(intervalId);
-  }, [usuario?.role]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [podeGerenciarRoteiros]);
 
   const carregarRoteiros = async () => {
     try {
@@ -388,8 +391,8 @@ export function Roteiros() {
   const roteirosEmAndamento = roteirosHoje.filter(r => r.status === "em_andamento" && r.funcionarioId !== usuario.id);
   const roteirosConcluidos = roteirosHoje.filter(r => r.status === "concluido");
   
-  // Verificar se usuário é admin
-  const isAdmin = usuario?.role === "ADMIN";
+  // Verificar se usuário pode gerenciar roteiros (admin ou permissão personalizada)
+  const isAdmin = podeGerenciarRoteiros;
 
   const renderMapaAdmin = (roteiro) => {
     if (!isAdmin) return null;
@@ -448,7 +451,7 @@ export function Roteiros() {
         {success && <AlertBox type="success" message={success} onClose={() => setSuccess("")} />}
 
         {/* DEBUG INFO - REMOVER DEPOIS */}
-        {isAdmin && (
+        {usuario?.role === "ADMIN" && (
           <div className="mb-6 p-4 bg-yellow-100 border-2 border-yellow-400 rounded">
             <p className="font-bold text-yellow-900">🔍 DEBUG (apenas para você, admin):</p>
             <p className="text-sm">Seu role: {usuario?.role}</p>
@@ -467,7 +470,7 @@ export function Roteiros() {
         )}
 
         {/* Botão para gerenciar roteiros (apenas admin) */}
-        {usuario?.role === "ADMIN" && (
+        {podeGerenciarRoteiros && (
           <div className="mb-6">
             <button
               onClick={() => navigate("/roteiros/gerenciar")}

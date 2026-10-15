@@ -14,7 +14,8 @@ import { PageLoader } from "../components/Loading";
 import { useAuth } from "../contexts/AuthContext";
 
 export function Lojas() {
-  const { usuario } = useAuth();
+  const { usuario, pode } = useAuth();
+  const podeGerenciar = pode("lojas.gerenciar", usuario?.role === "ADMIN");
   const [lojas, setLojas] = useState([]);
   const [busca, setBusca] = useState("");
   const [loading, setLoading] = useState(true);
@@ -155,7 +156,7 @@ export function Lojas() {
             </svg>
             Ver
           </Link>
-          {usuario?.role === "ADMIN" && (
+          {podeGerenciar && (
             <>
               <Link
                 to={`/lojas/${loja.id}/editar`}
@@ -224,7 +225,7 @@ export function Lojas() {
           subtitle="Gerencie as lojas do sistema"
           icon="🏪"
           action={
-            usuario?.role === "ADMIN" ? (
+            podeGerenciar ? (
               <Link
                 to="/lojas/nova"
                 className="btn-primary flex items-center gap-2"

@@ -1,4 +1,4 @@
-# 🧸 Sistema LK Operação - Frontend
+# 🧸 Sistema Agarra Mais - Frontend
 
 Sistema moderno e completo de gestão de estoque para máquinas de pelúcias.
 
@@ -206,7 +206,7 @@ npm run build
 
 ## 📄 Licença
 
-Este projeto foi desenvolvido para a empresa LK Operação.
+Este projeto foi desenvolvido para a empresa Agarra Mais.
 
 ---
 

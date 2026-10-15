@@ -33,7 +33,7 @@ export function ExecutarRoteiro() {
         setError("Erro ao marcar manutenção: " + (error.response?.data?.error || error.message));
       }
     };
-  const { usuario } = useAuth();
+  const { usuario, pode } = useAuth();
     // Função para desfazer finalização do roteiro (apenas admin)
     const desfazerFinalizacao = async () => {
       if (!window.confirm("Deseja realmente desfazer a finalização deste roteiro?")) return;
@@ -610,7 +610,7 @@ export function ExecutarRoteiro() {
                 }
               </button>
               {/* Botão de desfazer finalização para admin se status for finalizado */}
-              {usuario?.role === "ADMIN" && roteiro.status === "concluido" && (
+              {pode("roteiros.gerenciar", usuario?.role === "ADMIN") && roteiro.status === "concluido" && (
                 <button
                   onClick={desfazerFinalizacao}
                   className="btn-danger text-sm"

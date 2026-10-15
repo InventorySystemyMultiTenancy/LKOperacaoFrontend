@@ -41,7 +41,9 @@ const getBackendErrorMessage = (error, fallback) =>
   fallback;
 
 export function Movimentacoes() {
-  const { usuario } = useAuth();
+  const { usuario, pode } = useAuth();
+  // Admin ou usuário com a funcionalidade "movimentacoes.gerenciar"
+  const podeGerenciarMov = pode("movimentacoes.gerenciar", usuario?.role === "ADMIN");
 
   // --- ESTADOS ---
   const [movimentacoes, setMovimentacoes] = useState([]);
@@ -787,7 +789,7 @@ export function Movimentacoes() {
   // Filtragem por zona/nome (mantém apenas se necessário)
   const bolinhaFiltrados = bolinhaRoteiros;
 
-  if (usuario?.role === "ADMIN") {
+  if (podeGerenciarMov) {
     columns.push({
       key: "acoes",
       label: "Ações",
@@ -850,12 +852,12 @@ export function Movimentacoes() {
           />
         )}
 
-        {usuario?.role === "ADMIN" && <StatsGrid stats={stats} />}
+        {podeGerenciarMov && <StatsGrid stats={stats} />}
 
         <AvisosMaquinasFaltam lojas={lojas} />
 
         {/* Filtro por Loja - Apenas para ADMIN */}
-        {usuario?.role === "ADMIN" && (
+        {podeGerenciarMov && (
           <>
             <div className="card-gradient mb-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -1313,7 +1315,7 @@ export function Movimentacoes() {
         )}
 
         {/* Histórico de Movimentações - Apenas para ADMIN */}
-        {usuario?.role === "ADMIN" && (
+        {podeGerenciarMov && (
           <div className="card-gradient">
             <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
               <span className="text-2xl">📋</span>
@@ -1397,7 +1399,7 @@ export function Movimentacoes() {
         </div>
 
         {/* Modal de Edição */}
-        {editandoMovimentacao && usuario?.role === "ADMIN" && (
+        {editandoMovimentacao && podeGerenciarMov && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
               <div className="flex items-center justify-between mb-4">

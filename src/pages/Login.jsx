@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { LOGIN_ABERTO } from "../config";
 
 export function Login() {
   const [email, setEmail] = useState("");
@@ -38,13 +37,13 @@ export function Login() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-4">
             <img
-              src="/LKOperacaoLogo.png"
-              alt="LK Operação"
+              src="/ClubeKidsLogo (1).png"
+              alt="Clube Kids"
               className="w-38 h-38 object-contain"
             />
           </div>
           <h1 className="text-4xl font-bold mb-2">
-            <span className="text-gradient">LK Operação</span>
+            <span className="text-gradient">Clube Kids</span>
           </h1>
           <p className="text-gray-600 font-medium">
             Sistema de Gestão de Pelúcias 🧸
@@ -99,7 +98,7 @@ export function Login() {
               className="input-field"
               placeholder="seu@email.com"
               autoComplete="username"
-              required={!LOGIN_ABERTO}
+              required
             />
           </div>
 
@@ -129,7 +128,7 @@ export function Login() {
               className="input-field"
               placeholder="••••••••"
               autoComplete="current-password"
-              required={!LOGIN_ABERTO}
+              required
             />
           </div>
 

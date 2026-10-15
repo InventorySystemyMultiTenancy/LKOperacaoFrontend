@@ -9,7 +9,7 @@ import api from '../services/api';
 import Swal from 'sweetalert2';
 
 export function GestaoCarrinhos() {
-  const { usuario } = useAuth();
+  const { usuario, pode } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -34,10 +34,11 @@ export function GestaoCarrinhos() {
   
   // Estado para edição de carrinho
   const [carrinhoEditando, setCarrinhoEditando] = useState(null);
+  // Produto escolhido para adicionar ao carrinho na edição
+  const [produtoAdicionar, setProdutoAdicionar] = useState({ produtoId: '', quantidade: '' });
   const [mostrarModalEdicao, setMostrarModalEdicao] = useState(false);
   const [dadosEdicao, setDadosEdicao] = useState({
-    quantidadeInicial: 0,
-    quantidadeAtual: 0,
+    itens: [],
     ativo: true
   });
   const [salvandoEdicao, setSalvandoEdicao] = useState(false);
@@ -58,11 +59,12 @@ export function GestaoCarrinhos() {
 
   // Verificar se o usuário tem permissão para acessar e devolver carrinhos
   const usuarioEmail = usuario?.email || '';
-  const emailsAutorizados = ['eriky@lkoperacao.com', 'gerson@lkoperacao.com'];
+  const emailsAutorizados = ['eriky@clubekids.com', 'gerson@clubekids.com'];
   const isEmailAutorizado = emailsAutorizados.includes(usuarioEmail.toLowerCase());
   const isAdmin = usuario?.role === 'ADMIN';
-  const podeAcessar = isAdmin || isEmailAutorizado;
-  const podeDevolver = isEmailAutorizado; // Apenas emails autorizados podem devolver
+  const podeAcessar = pode('carrinhos', isAdmin || isEmailAutorizado);
+  // Admin, emails autorizados ou usuário personalizado com "carrinhos.devolver"
+  const podeDevolver = pode('carrinhos.devolver', isAdmin || isEmailAutorizado);
 
   // Log de debug de permissões
   console.log('🔐 Permissões:', {
@@ -277,11 +279,35 @@ export function GestaoCarrinhos() {
   function handleEditarCarrinho(carrinho) {
     setCarrinhoEditando(carrinho);
     setDadosEdicao({
-      quantidadeInicial: carrinho.quantidadeInicial,
-      quantidadeAtual: carrinho.quantidadeAtual,
+      // Parte do saldo atual (o que deve devolver); ao salvar, vira o novo ponto
+      // de partida e o uso volta a ser contado a partir desta atualização
+      itens: (carrinho.itens || []).map(item => ({
+        produtoId: item.produtoId,
+        nome: item.produto?.nome || 'Produto',
+        quantidade: item.quantidadeEsperada ?? item.quantidadeAtual
+      })),
       ativo: carrinho.ativo !== false // Default true se undefined
     });
+    setProdutoAdicionar({ produtoId: '', quantidade: '' });
     setMostrarModalEdicao(true);
+  }
+
+  function handleAdicionarProdutoEdicao() {
+    const quantidade = parseInt(produtoAdicionar.quantidade, 10);
+    const produto = produtos.find(p => p.id === produtoAdicionar.produtoId);
+    if (!produto || Number.isNaN(quantidade) || quantidade <= 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Produto inválido',
+        text: 'Escolha um produto e informe uma quantidade maior que zero'
+      });
+      return;
+    }
+    setDadosEdicao(prev => ({
+      ...prev,
+      itens: [...prev.itens, { produtoId: produto.id, nome: produto.nome, quantidade, novo: true }]
+    }));
+    setProdutoAdicionar({ produtoId: '', quantidade: '' });
   }
 
   function handleDevolverCarrinho(carrinho) {
@@ -305,34 +331,23 @@ export function GestaoCarrinhos() {
   async function handleSalvarEdicao(e) {
     e.preventDefault();
     
-    if (dadosEdicao.quantidadeInicial < 0 || dadosEdicao.quantidadeAtual < 0) {
+    if (dadosEdicao.itens.some(item => item.quantidade === '' || parseInt(item.quantidade) < 0)) {
       Swal.fire({
         icon: 'error',
         title: 'Valores inválidos',
-        text: 'As quantidades não podem ser negativas'
+        text: 'Informe quantidades válidas (não negativas) para todos os produtos'
       });
       return;
-    }
-
-    if (dadosEdicao.quantidadeAtual > dadosEdicao.quantidadeInicial) {
-      const result = await Swal.fire({
-        icon: 'warning',
-        title: 'Quantidade atual maior que inicial',
-        text: 'A quantidade atual é maior que a inicial. Deseja continuar?',
-        showCancelButton: true,
-        confirmButtonText: 'Sim, continuar',
-        cancelButtonText: 'Cancelar'
-      });
-      
-      if (!result.isConfirmed) return;
     }
 
     setSalvandoEdicao(true);
     
     try {
       const response = await api.put(`/carrinho-usuarios/${carrinhoEditando.id}`, {
-        quantidadeInicial: parseInt(dadosEdicao.quantidadeInicial),
-        quantidadeAtual: parseInt(dadosEdicao.quantidadeAtual),
+        itens: dadosEdicao.itens.map(item => ({
+          produtoId: item.produtoId,
+          quantidadeInicial: parseInt(item.quantidade)
+        })),
         ativo: dadosEdicao.ativo
       });
 
@@ -657,8 +672,8 @@ export function GestaoCarrinhos() {
               ) : (
                 <div className="space-y-4">
                   {carrinhos.map(carrinho => {
-                    const percentage = carrinho.quantidadeUsada 
-                      ? (carrinho.quantidadeUsada / carrinho.quantidadeInicial * 100).toFixed(0)
+                    const percentage = carrinho.quantidadeInicial > 0
+                      ? Math.min(100, (carrinho.quantidadeUsada || 0) / carrinho.quantidadeInicial * 100).toFixed(0)
                       : 0;
                     const color = percentage > 90 ? 'bg-red-500' : percentage > 70 ? 'bg-yellow-500' : 'bg-green-500';
                     
@@ -677,6 +692,11 @@ export function GestaoCarrinhos() {
                             <span className="text-xs text-gray-500">
                               {new Date(carrinho.data + 'T00:00:00').toLocaleDateString('pt-BR')}
                             </span>
+                            {carrinho.usoDesde && (
+                              <p className="text-xs text-gray-500 mt-1">
+                                Uso contado desde {new Date(carrinho.usoDesde).toLocaleString('pt-BR')}
+                              </p>
+                            )}
                           </div>
                         </div>
 
@@ -691,16 +711,16 @@ export function GestaoCarrinhos() {
                         {/* Resumo Total */}
                         <div className="grid grid-cols-3 gap-4 mb-3">
                           <div className="text-center">
-                            <p className="text-xs text-gray-600">Total Inicial</p>
+                            <p className="text-xs text-gray-600">Levou</p>
                             <p className="text-lg font-bold">{carrinho.quantidadeInicial}</p>
                           </div>
                           <div className="text-center">
-                            <p className="text-xs text-gray-600">Total Usado</p>
+                            <p className="text-xs text-gray-600">Usado nas movimentações</p>
                             <p className="text-lg font-bold">{carrinho.quantidadeUsada || 0}</p>
                           </div>
                           <div className="text-center">
-                            <p className="text-xs text-gray-600">Total Restante</p>
-                            <p className="text-lg font-bold">{carrinho.quantidadeAtual}</p>
+                            <p className="text-xs text-gray-600">Deve devolver</p>
+                            <p className="text-lg font-bold">{carrinho.quantidadeEsperada ?? carrinho.quantidadeAtual}</p>
                           </div>
                         </div>
 
@@ -726,27 +746,33 @@ export function GestaoCarrinhos() {
                             <p className="text-xs text-gray-600 font-semibold mb-2">Produtos no Carrinho:</p>
                             <div className="space-y-2">
                               {carrinho.itens.map(item => {
-                                const percentualItem = item.quantidadeInicial > 0 
-                                  ? ((item.quantidadeInicial - item.quantidadeAtual) / item.quantidadeInicial * 100).toFixed(0)
-                                  : 0;
-                                const colorItem = percentualItem > 90 ? 'text-red-600' : percentualItem > 70 ? 'text-yellow-600' : 'text-green-600';
-                                
+                                const usado = item.quantidadeUsada || 0;
+                                const devolver = item.quantidadeEsperada ?? item.quantidadeAtual;
+
                                 return (
-                                  <div key={item.id} className="flex items-center justify-between text-sm p-2 bg-gray-50 rounded">
-                                    <div className="flex-1">
+                                  <div key={item.id} className="p-2 bg-gray-50 rounded text-sm">
+                                    <div className="mb-1">
                                       <span className="font-medium">{item.produto?.nome || 'Produto'}</span>
                                       {item.produto?.codigo && (
                                         <span className="text-xs text-gray-500 ml-1">({item.produto.codigo})</span>
                                       )}
                                     </div>
-                                    <div className="flex items-center gap-3 text-xs">
+                                    <div className="grid grid-cols-3 gap-2 text-xs">
                                       <span className="text-gray-600">
-                                        Restante: <strong className={item.quantidadeAtual === 0 ? 'text-red-600' : ''}>{item.quantidadeAtual}</strong>/{item.quantidadeInicial}
+                                        Levou: <strong>{item.quantidadeInicial}</strong>
                                       </span>
-                                      <span className={colorItem}>
-                                        {percentualItem}%
+                                      <span className="text-gray-600">
+                                        Usou: <strong>{usado}</strong>
+                                      </span>
+                                      <span className="text-gray-600">
+                                        Deve devolver: <strong className="text-blue-700">{devolver}</strong>
                                       </span>
                                     </div>
+                                    {item.quantidadeExcedente > 0 && (
+                                      <p className="text-xs text-orange-600 mt-1">
+                                        ⚠️ Usou {item.quantidadeExcedente} a mais do que levou
+                                      </p>
+                                    )}
                                   </div>
                                 );
                               })}
@@ -1101,43 +1127,85 @@ export function GestaoCarrinhos() {
               <form onSubmit={handleSalvarEdicao}>
                 <div className="mb-6">
                   <label className="block text-gray-700 font-semibold mb-2">
-                    Quantidade inicial *
+                    Quantidade no carrinho agora *
                   </label>
-                  <input
-                    type="number"
-                    value={dadosEdicao.quantidadeInicial}
-                    onChange={(e) => setDadosEdicao(prev => ({
-                      ...prev,
-                      quantidadeInicial: e.target.value
-                    }))}
-                    min="0"
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-lg font-semibold text-center"
-                    disabled={salvandoEdicao}
-                  />
-                  <p className="text-sm text-gray-500 mt-1">
-                    Quantidade total de produtos no início do dia
-                  </p>
-                </div>
+                  <div className="space-y-2">
+                    {dadosEdicao.itens.map((item, index) => (
+                      <div key={item.produtoId} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                        <span className="flex-1 text-sm font-medium text-gray-800">
+                          {item.nome}
+                          {item.novo && (
+                            <span className="ml-2 text-xs font-semibold text-green-700 bg-green-100 rounded-full px-2 py-0.5">novo</span>
+                          )}
+                        </span>
+                        <input
+                          type="number"
+                          value={item.quantidade}
+                          onChange={(e) => setDadosEdicao(prev => ({
+                            ...prev,
+                            itens: prev.itens.map((it, i) => i === index ? { ...it, quantidade: e.target.value } : it)
+                          }))}
+                          min="0"
+                          required
+                          className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent font-semibold text-center"
+                          disabled={salvandoEdicao}
+                        />
+                        {item.novo && (
+                          <button
+                            type="button"
+                            onClick={() => setDadosEdicao(prev => ({
+                              ...prev,
+                              itens: prev.itens.filter((_, i) => i !== index)
+                            }))}
+                            className="text-red-500 hover:text-red-700 text-lg leading-none"
+                            title="Remover produto adicionado"
+                            disabled={salvandoEdicao}
+                          >
+                            ×
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
 
-                <div className="mb-6">
-                  <label className="block text-gray-700 font-semibold mb-2">
-                    Quantidade atual *
-                  </label>
-                  <input
-                    type="number"
-                    value={dadosEdicao.quantidadeAtual}
-                    onChange={(e) => setDadosEdicao(prev => ({
-                      ...prev,
-                      quantidadeAtual: e.target.value
-                    }))}
-                    min="0"
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-lg font-semibold text-center"
-                    disabled={salvandoEdicao}
-                  />
-                  <p className="text-sm text-gray-500 mt-1">
-                    Quantidade restante no carrinho agora
+                  {/* Adicionar produto que ainda não está no carrinho */}
+                  <div className="mt-3 p-3 border border-dashed border-gray-300 rounded-lg">
+                    <p className="text-sm font-semibold text-gray-700 mb-2">➕ Adicionar produto</p>
+                    <div className="flex gap-2">
+                      <select
+                        value={produtoAdicionar.produtoId}
+                        onChange={(e) => setProdutoAdicionar(prev => ({ ...prev, produtoId: e.target.value }))}
+                        className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        disabled={salvandoEdicao}
+                      >
+                        <option value="">Selecione o produto</option>
+                        {produtos
+                          .filter(p => !dadosEdicao.itens.some(item => item.produtoId === p.id))
+                          .map(p => (
+                            <option key={p.id} value={p.id}>{p.nome}</option>
+                          ))}
+                      </select>
+                      <input
+                        type="number"
+                        min="1"
+                        placeholder="Qtd"
+                        value={produtoAdicionar.quantidade}
+                        onChange={(e) => setProdutoAdicionar(prev => ({ ...prev, quantidade: e.target.value }))}
+                        className="w-20 px-2 py-2 border border-gray-300 rounded-lg text-sm text-center"
+                        disabled={salvandoEdicao}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAdicionarProdutoEdicao}
+                        className="px-3 py-2 bg-primary hover:bg-primary-dark text-black text-sm font-semibold rounded-lg disabled:opacity-50"
+                        disabled={salvandoEdicao || !produtoAdicionar.produtoId}
+                      >
+                        Adicionar
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Ao salvar, o uso passa a ser contado das movimentações feitas a partir de agora.
                   </p>
                 </div>
 
@@ -1160,24 +1228,6 @@ export function GestaoCarrinhos() {
                   <p className="text-sm text-gray-500 mt-1 ml-8">
                     Desmarque para desativar o carrinho manualmente
                   </p>
-                </div>
-
-                {/* Informações calculadas */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                  <p className="text-sm font-semibold text-gray-700 mb-2">Resumo:</p>
-                  <div className="space-y-1 text-sm">
-                    <p className="text-gray-600">
-                      Usado: <strong>{dadosEdicao.quantidadeInicial - dadosEdicao.quantidadeAtual}</strong> unidades
-                    </p>
-                    <p className="text-gray-600">
-                      Percentual: <strong>
-                        {dadosEdicao.quantidadeInicial > 0 
-                          ? ((dadosEdicao.quantidadeInicial - dadosEdicao.quantidadeAtual) / dadosEdicao.quantidadeInicial * 100).toFixed(1)
-                          : 0
-                        }%
-                      </strong>
-                    </p>
-                  </div>
                 </div>
 
                 {/* Botões */}

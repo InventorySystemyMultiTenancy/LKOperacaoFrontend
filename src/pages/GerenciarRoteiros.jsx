@@ -8,7 +8,7 @@ import { PageLoader, EmptyState } from "../components/Loading";
 import { useAuth } from "../contexts/AuthContext";
 
 export function GerenciarRoteiros() {
-  const { usuario } = useAuth();
+  const { usuario, pode } = useAuth();
   const navigate = useNavigate();
 
   const [roteiros, setRoteiros] = useState([]);
@@ -24,9 +24,10 @@ export function GerenciarRoteiros() {
 
   // Verificar se é admin
   useEffect(() => {
-    if (usuario?.role !== "ADMIN") {
+    if (!pode("roteiros.gerenciar", usuario?.role === "ADMIN")) {
       navigate("/roteiros");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usuario, navigate]);
 
   useEffect(() => {

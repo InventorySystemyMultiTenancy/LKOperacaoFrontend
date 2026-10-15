@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@config "../tailwind.config.js";
 
 @layer base {
   * {
@@ -22,36 +21,36 @@
     background: linear-gradient(
       to bottom right,
       white,
-      rgba(22, 163, 74, 0.1)
+      rgba(36, 87, 177, 0.1)
     );
-    border: 1px solid rgba(22, 163, 74, 0.3);
+    border: 1px solid rgba(36, 87, 177, 0.3);
     @apply rounded-2xl shadow-lg p-6 transition-all duration-300 hover:shadow-xl;
   }
 
   /* Botões com estilo moderno */
   .btn-primary {
-    background: linear-gradient(to right, #16A34A, #2563EB);
+    background: linear-gradient(to right, #2457B1, #ED3136);
     color: white;
     @apply font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
   }
 
   .btn-primary:focus {
-    --tw-ring-color: rgba(22, 163, 74, 0.5);
+    --tw-ring-color: rgba(36, 87, 177, 0.5);
   }
 
   .btn-secondary {
     background: white;
-    color: #16A34A;
-    border: 2px solid #16A34A;
+    color: #2457B1;
+    border: 2px solid #2457B1;
     @apply font-semibold px-6 py-3 rounded-xl shadow-sm hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
   }
 
   .btn-secondary:hover {
-    background-color: rgba(22, 163, 74, 0.05);
+    background-color: rgba(36, 87, 177, 0.05);
   }
 
   .btn-secondary:focus {
-    --tw-ring-color: rgba(22, 163, 74, 0.5);
+    --tw-ring-color: rgba(36, 87, 177, 0.5);
   }
 
   .btn-danger {
@@ -68,8 +67,8 @@
   }
 
   .input-field:focus {
-    border-color: #16A34A;
-    --tw-ring-color: rgba(22, 163, 74, 0.1);
+    border-color: #2457B1;
+    --tw-ring-color: rgba(36, 87, 177, 0.1);
     @apply ring-4;
   }
 
@@ -82,8 +81,8 @@
   }
 
   .select-field:focus {
-    border-color: #16A34A;
-    --tw-ring-color: rgba(22, 163, 74, 0.1);
+    border-color: #2457B1;
+    --tw-ring-color: rgba(36, 87, 177, 0.1);
     @apply ring-4;
   }
 
@@ -118,8 +117,8 @@
   .table-modern thead {
     background: linear-gradient(
       to right,
-      rgba(22, 163, 74, 0.05),
-      rgba(37, 99, 235, 0.05)
+      rgba(36, 87, 177, 0.05),
+      rgba(237, 49, 54, 0.05)
     );
   }
 
@@ -136,7 +135,7 @@
   }
 
   .table-modern tbody tr:hover {
-    background-color: rgba(22, 163, 74, 0.1);
+    background-color: rgba(36, 87, 177, 0.1);
   }
 
   /* Alert boxes */
@@ -181,12 +180,12 @@
   .teddy-pattern {
     background-image: radial-gradient(
         circle at 20% 80%,
-        rgba(22, 163, 74, 0.03) 0%,
+        rgba(36, 87, 177, 0.03) 0%,
         transparent 50%
       ),
       radial-gradient(
         circle at 80% 20%,
-        rgba(37, 99, 235, 0.03) 0%,
+        rgba(237, 49, 54, 0.03) 0%,
         transparent 50%
       );
   }
@@ -194,14 +193,14 @@
   /* Loading spinner personalizado */
   .spinner {
     @apply animate-spin rounded-full border-4;
-    border-color: rgba(22, 163, 74, 0.2);
-    border-top-color: #16A34A;
+    border-color: rgba(36, 87, 177, 0.2);
+    border-top-color: #2457B1;
   }
 }
 
 @layer utilities {
   .text-gradient {
-    background: linear-gradient(to right, #16A34A, #2563EB);
+    background: linear-gradient(to right, #2457B1, #ED3136);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -209,10 +208,10 @@
 
   .bg-pattern {
     background-image: linear-gradient(
-        rgba(22, 163, 74, 0.05) 1px,
+        rgba(36, 87, 177, 0.05) 1px,
         transparent 1px
       ),
-      linear-gradient(90deg, rgba(22, 163, 74, 0.05) 1px, transparent 1px);
+      linear-gradient(90deg, rgba(36, 87, 177, 0.05) 1px, transparent 1px);
     background-size: 20px 20px;
   }
 }

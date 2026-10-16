@@ -144,10 +144,12 @@ export async function gerarPdfVia(a) {
       item.fichas ? `Fichas ${reais(item.fichas)}` : null,
       `Caiu ${item.caiu}`,
     ].filter(Boolean);
-    doc.text(`${item.maquinaNome}: ${reais(item.total)}  (${partes.join(" · ")})`, M, y, {
-      maxWidth: L - 2 * M,
-    });
-    y += 5;
+    const linhas = doc.splitTextToSize(
+      `${item.maquinaNome}: ${reais(item.total)}  (${partes.join(" · ")})`,
+      L - 2 * M,
+    );
+    doc.text(linhas, M, y);
+    y += 4 * linhas.length + 1.5;
   }
 
   doc.setFontSize(7);

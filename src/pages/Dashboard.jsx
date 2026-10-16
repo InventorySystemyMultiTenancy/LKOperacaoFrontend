@@ -8,6 +8,7 @@ import { PageLoader } from "../components/Loading";
 import { Badge } from "../components/UIComponents";
 import { AlertaRoteirosPendentes } from "../components/AlertaRoteirosPendentes";
 import { AlertaConferencia } from "../components/AlertaConferencia";
+import { DashboardResumo } from "../components/DashboardResumo";
 import { ManutencoesBadgeAlert } from "./ManutencoesBadgeAlert";
 import { useAuth } from "../contexts/AuthContext";
 import { CarrinhoWidget } from "../components/CarrinhoWidget";
@@ -1732,147 +1733,21 @@ export function Dashboard() {
           </div>
         </div>
 
-        {/* Cards de Resumo com design moderno - Apenas para ADMIN */}
-        {/* Card de acesso para Manutenções - visível para todos */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6 mb-8">
-          {podeAcessarCarrinhos && (
-            <Link to="/carrinhos" className="stat-card bg-linear-to-br from-green-500 to-green-700 p-4 sm:p-6 rounded-xl shadow-md flex flex-col justify-between min-h-30 hover:scale-105 transition-transform cursor-pointer relative">
-              <div className="relative z-10 flex flex-col items-center justify-center h-full">
-                <span className="text-5xl mb-2">🛒</span>
-                <span className="font-bold text-lg text-center">Carrinhos</span>
-                <span className="text-xs text-green-100 mt-1 text-center">Gestão de produtos dos funcionários</span>
-              </div>
-            </Link>
-          )}
-          {pode("manutencoes", true) && (
-          <Link to="/manutencoes" className="stat-card bg-linear-to-br from-blue-500 to-blue-700 p-4 sm:p-6 rounded-xl shadow-md flex flex-col justify-between min-h-30 hover:scale-105 transition-transform cursor-pointer relative">
-            <div className="relative z-10 flex flex-col items-center justify-center h-full">
-              <span className="text-5xl mb-2">🛠️</span>
-              <span className="font-bold text-lg text-center">Manutenções</span>
-              <span className="text-xs text-blue-100 mt-1 text-center">Visualizar e gerenciar manutenções</span>
-              {/* Badge de alerta para FUNCIONARIO com manutenções pendentes */}
-              {usuario?.role === "FUNCIONARIO" && (
-                <ManutencoesBadgeAlert userId={usuario.id} />
-              )}
-            </div>
-          </Link>
-          )}
-          {verResumo && <>
-            {(() => {
-              const diasSemanaDisplay = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-              const diaVariantes = [
-                [],              // domingo
-                ["segunda"],
-                ["terça", "terca"],
-                ["quarta"],
-                ["quinta"],
-                ["sexta"],
-                [],              // sábado
-              ];
-              const diaNomeDisplay = diasSemanaDisplay[new Date().getDay()];
-              const variantes = diaVariantes[new Date().getDay()];
-              const qtd = roteirosHoje.filter((r) => {
-                const zona = (r.zona || "").toLowerCase();
-                return variantes.some((v) => zona.startsWith(v));
-              }).length;
-              return (
-                <Link to="/roteiros" className="stat-card bg-linear-to-br from-purple-500 to-indigo-600 p-4 sm:p-6 rounded-xl shadow-md flex flex-col justify-between min-h-30 hover:scale-105 transition-transform cursor-pointer">
-                  <div className="relative z-10">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-medium opacity-90">
-                        Roteiros para hoje
-                      </h3>
-                      <svg
-                        className="w-8 h-8 opacity-80"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                        />
-                      </svg>
-                    </div>
-                    <p className="text-3xl font-bold">{qtd}</p>
-                    <p className="text-xs opacity-75 mt-1">📋 {diaNomeDisplay}</p>
-                  </div>
-                </Link>
-              );
-            })()}
-
-            {/* Removido: Card de Moedas Inseridas */}
-
-            <div className="stat-card bg-linear-to-br from-green-500 to-green-600 p-4 sm:p-6 rounded-xl shadow-md flex flex-col justify-between min-h-30">
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium opacity-90">
-                    Prêmios Saídos
-                  </h3>
-                  <svg
-                    className="w-8 h-8 opacity-80"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
-                    />
-                  </svg>
-                </div>
-                <p className="text-3xl font-bold">
-                  {stats.balanco?.totais?.totalProdutosSairam ?? stats.balanco?.totais?.totalSairam ?? 0}
-                </p>
-                <p className="text-xs opacity-75 mt-1">🎁 Pelúcias entregues</p>
-              </div>
-            </div>
-
-            <div
-              className="stat-card bg-linear-to-br from-red-500 to-red-600 p-4 sm:p-6 rounded-xl shadow-md flex flex-col justify-between min-h-30 cursor-pointer"
-              onClick={() => {
-                const alertSection = document.getElementById(
-                  "alertas-estoque-maquinas"
-                );
-                if (alertSection) {
-                  alertSection.scrollIntoView({ behavior: "smooth" });
+        {/* Boxes principais: valores do mês, manutenções, movimentações, estoque e top */}
+        <DashboardResumo
+          podeManutencoes={pode("manutencoes", true)}
+          podeMovimentacoes={pode("movimentacoes", true)}
+          podeCarrinhos={podeAcessarCarrinhos}
+          alertasEstoque={
+            verResumo
+              ? {
+                  total: stats.alertas.length + alertasEstoqueLoja.length,
+                  maquinas: stats.alertas.length,
+                  lojas: alertasEstoqueLoja.length,
                 }
-              }}
-            >
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium opacity-90">
-                    Alertas de Estoque
-                  </h3>
-                  <svg
-                    className="w-8 h-8 opacity-80"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                    />
-                  </svg>
-                </div>
-                <p className="text-3xl font-bold">
-                  {stats.alertas.length + alertasEstoqueLoja.length}
-                </p>
-                <p className="text-xs opacity-75 mt-1">
-                  ⚠️ {stats.alertas.length} máquinas · 🏪{" "}
-                  {alertasEstoqueLoja.length} lojas
-                </p>
-              </div>
-            </div>
-          </>}
-        </div>
+              : null
+          }
+        />
         {verBusca && (
         <div className="card-gradient mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">

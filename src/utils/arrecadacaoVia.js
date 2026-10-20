@@ -24,7 +24,7 @@ async function carregarLogo() {
       const imagem = new Image();
       imagem.onload = () => resolve(imagem);
       imagem.onerror = reject;
-      imagem.src = "/ToyDiversoesLogo.png";
+      imagem.src = "/CamaleaoDiversoesLogo.png";
     });
     const canvas = document.createElement("canvas");
     canvas.width = 220;
@@ -48,7 +48,7 @@ export async function gerarPdfVia(a) {
   const doc = new jsPDF({ unit: "mm", format: "a5" });
   const L = 148;
   const M = 10;
-  const azul = [11, 59, 168];
+  const azul = [11, 93, 59];
   const cinza = [225, 228, 235];
   let y = M;
 
@@ -155,7 +155,7 @@ export async function gerarPdfVia(a) {
   doc.setFontSize(7);
   doc.setTextColor(120);
   doc.text(
-    `Toy Diversões · Responsável: ${a.responsavelNome || "-"}`,
+    `Camaleão Diversões · Responsável: ${a.responsavelNome || "-"}`,
     L / 2,
     205,
     { align: "center" },
@@ -180,7 +180,7 @@ export async function compartilharPdfVia(a) {
 
 export function textoWhatsappVia(a) {
   const linhas = [
-    "*Controle de Arrecadação — Toy Diversões*",
+    "*Controle de Arrecadação — Camaleão Diversões*",
     `Cliente: ${a.loja?.nome || ""}`,
     `Data: ${dataBR(a.data)}`,
     "",
@@ -192,7 +192,7 @@ export function textoWhatsappVia(a) {
   ];
   if (a.observacao) linhas.push("", `Observação: ${a.observacao}`);
   if (a.recebedorNome) linhas.push("", `Conferido por: ${a.recebedorNome}`);
-  linhas.push(`Responsável Toy Diversões: ${a.responsavelNome || "-"}`);
+  linhas.push(`Responsável Camaleão Diversões: ${a.responsavelNome || "-"}`);
   return linhas.join("\n");
 }
 

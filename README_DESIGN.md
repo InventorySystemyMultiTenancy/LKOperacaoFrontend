@@ -1,4 +1,4 @@
-# 🧸 Sistema Toy Diversões - Frontend
+# 🧸 Sistema Camaleão Diversões - Frontend
 
 Sistema moderno e completo de gestão de estoque para máquinas de pelúcias.
 

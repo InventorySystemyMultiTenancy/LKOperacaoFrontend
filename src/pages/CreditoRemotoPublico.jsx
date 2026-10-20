@@ -141,8 +141,8 @@ export function CreditoRemotoPublico() {
       <header className="bg-linear-to-r from-black via-gray-800 to-gray-900 border-b-4 border-primary">
         <div className="max-w-xl mx-auto px-4 py-4 flex items-center justify-center">
           <img
-            src="/ToyDiversoesLogo.png"
-            alt="Toy Diversões"
+            src="/CamaleaoDiversoesLogo.png"
+            alt="Camaleão Diversões"
             className="h-12 w-auto"
           />
         </div>
@@ -164,7 +164,7 @@ export function CreditoRemotoPublico() {
             <section className="card-gradient mb-5">
               <p className="text-sm text-gray-600">{dados.descricao}</p>
               <h1 className="text-2xl font-black text-gray-900 mt-1">
-                Seu voucher Toy Diversões
+                Seu voucher Camaleão Diversões
               </h1>
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <div className="rounded-lg border border-gray-200 bg-white p-3">

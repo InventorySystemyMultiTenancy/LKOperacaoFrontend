@@ -354,7 +354,7 @@ export function Arrecadacao() {
         <div className="bg-white rounded-2xl shadow-lg border-2 border-gray-300 overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-[200px_1fr]">
             <div className="flex flex-col items-center justify-center p-3 border-b md:border-b-0 md:border-r border-gray-300">
-              <img src="/ToyDiversoesLogo.png" alt="Toy Diversões" className="w-32 h-32 object-contain" />
+              <img src="/CamaleaoDiversoesLogo.png" alt="Camaleão Diversões" className="w-32 h-32 object-contain" />
             </div>
             <div>
               <div className="bg-gray-200 text-center py-3 font-bold text-primary-dark text-lg border-b border-gray-300">
@@ -653,7 +653,7 @@ export function Arrecadacao() {
             <div id="via-cliente" className="bg-white rounded-2xl shadow-lg border-2 border-gray-300 overflow-hidden">
               <div className="grid grid-cols-[110px_1fr] sm:grid-cols-[160px_1fr]">
                 <div className="flex items-center justify-center p-2 border-r border-gray-300">
-                  <img src="/ToyDiversoesLogo.png" alt="Toy Diversões" className="w-24 h-24 sm:w-32 sm:h-32 object-contain" />
+                  <img src="/CamaleaoDiversoesLogo.png" alt="Camaleão Diversões" className="w-24 h-24 sm:w-32 sm:h-32 object-contain" />
                 </div>
                 <div>
                   <div className="bg-gray-200 text-center py-2 font-bold text-primary-dark">Controle de Arrecadação</div>

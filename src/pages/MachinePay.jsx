@@ -347,7 +347,7 @@ function KpiCard({ titulo, valor, detalhe, icone, cor, onClick, ativo }) {
       disabled={!onClick}
       className={`rounded-2xl border-2 bg-white p-4 text-left shadow-sm transition-all ${
         onClick ? "hover:-translate-y-0.5 hover:shadow-md" : "cursor-default"
-      } ${ativo ? "border-[#0B3BA8] ring-2 ring-[#0B3BA8]/30" : "border-gray-100"}`}
+      } ${ativo ? "border-[#12A150] ring-2 ring-[#12A150]/30" : "border-gray-100"}`}
     >
       <div className="flex items-start justify-between gap-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">{titulo}</p>
@@ -417,7 +417,7 @@ function NomePonto({ maquina, onAbrir }) {
         {maquina.vinculo && (
           <>
             {" · "}
-            <span className="text-[#0B3BA8]">
+            <span className="text-[#12A150]">
               {maquina.vinculo.codigo}
               {maquina.vinculo.lojaNome ? ` · ${maquina.vinculo.lojaNome}` : ""}
             </span>
@@ -547,7 +547,7 @@ function AbaMaquinas({
                 key={valor}
                 onClick={() => setStatus(valor)}
                 className={`px-3 py-1.5 text-sm font-medium ${
-                  status === valor ? "bg-[#0B3BA8] text-white" : "bg-white text-gray-700 hover:bg-gray-50"
+                  status === valor ? "bg-[#12A150] text-white" : "bg-white text-gray-700 hover:bg-gray-50"
                 }`}
               >
                 {label}
@@ -753,7 +753,7 @@ function AbaRanking({ filtrosQuery, periodo, onAbrirMaquina }) {
               key={valor}
               onClick={() => setOrdem(valor)}
               className={`px-3 py-1.5 text-sm font-medium ${
-                ordem === valor ? "bg-[#0B3BA8] text-white" : "bg-white text-gray-700 hover:bg-gray-50"
+                ordem === valor ? "bg-[#12A150] text-white" : "bg-white text-gray-700 hover:bg-gray-50"
               }`}
             >
               {label}
@@ -916,7 +916,7 @@ function AbaGraficos({ filtrosQuery, periodo, resumo }) {
               <Tooltip />
               <Legend />
               <Bar dataKey="quedas" name="Quedas" fill="#f97316" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="maquinasComQueda" name="Máquinas que caíram" fill="#0B3BA8" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="maquinasComQueda" name="Máquinas que caíram" fill="#12A150" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -1133,7 +1133,7 @@ function CreditoRemoto({ maquina }) {
       showCancelButton: true,
       confirmButtonText: "Enviar crédito",
       cancelButtonText: "Cancelar",
-      confirmButtonColor: "#0B3BA8",
+      confirmButtonColor: "#12A150",
     });
     if (!confirmacao.isConfirmed) return;
 
@@ -1167,7 +1167,7 @@ function CreditoRemoto({ maquina }) {
             onClick={() => setValor(String(v))}
             className={`rounded-lg border px-3 py-1.5 text-sm font-medium ${
               Number(String(valor).replace(",", ".")) === v
-                ? "border-[#0B3BA8] bg-[#0B3BA8] text-white"
+                ? "border-[#12A150] bg-[#12A150] text-white"
                 : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
             }`}
           >
@@ -1487,7 +1487,7 @@ function NovaManutencaoMaquina({ maquina, onFechar, onCriada }) {
   };
 
   return (
-    <div className="rounded-xl border-2 border-[#0B3BA8]/30 bg-[#0B3BA8]/5 p-4">
+    <div className="rounded-xl border-2 border-[#12A150]/30 bg-[#12A150]/5 p-4">
       <div className="mb-3 flex items-start justify-between gap-2">
         <div>
           <h4 className="font-bold text-gray-900">🛠️ Nova manutenção</h4>
@@ -1801,7 +1801,7 @@ function DetalheMaquina({ posId, onClose }) {
               {m.serial && <Pill className="border-gray-200 bg-gray-50 text-gray-700">Serial {m.serial}</Pill>}
               {m.hibrido && <Pill className="border-green-200 bg-green-50 text-green-700">Híbrido</Pill>}
               {m.vinculo && (
-                <Pill className="border-[#0B3BA8]/30 bg-[#0B3BA8]/10 text-[#0B3BA8]">
+                <Pill className="border-[#12A150]/30 bg-[#12A150]/10 text-[#12A150]">
                   {m.vinculo.codigo} · {m.vinculo.lojaNome}
                 </Pill>
               )}
@@ -2173,7 +2173,7 @@ export function MachinePay() {
                     onClick={() => setPeriodo({ inicio, fim })}
                     className={`rounded-lg border px-3 py-1.5 text-sm font-medium ${
                       periodo.inicio === inicio && periodo.fim === fim
-                        ? "border-[#0B3BA8] bg-[#0B3BA8] text-white"
+                        ? "border-[#12A150] bg-[#12A150] text-white"
                         : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
                     }`}
                   >
@@ -2212,7 +2212,7 @@ export function MachinePay() {
               </label>
               {temFiltros && (
                 <button
-                  className="text-sm font-medium text-[#0B3BA8] hover:underline"
+                  className="text-sm font-medium text-[#12A150] hover:underline"
                   onClick={() => {
                     setBuscaDigitada("");
                     setLojaId("");
@@ -2335,7 +2335,7 @@ export function MachinePay() {
               valor={verValores ? formatarMoeda(resumo.vendasHojeValor) : `${resumo.vendasHojeQtd}`}
               detalhe={`${verValores ? `${resumo.vendasHojeQtd} vendas · ` : "vendas · "}${resumo.vencendoEm15Dias} planos vencendo`}
               icone="💰"
-              cor="text-[#0B3BA8]"
+              cor="text-[#12A150]"
             />
           </div>
         ) : null}
@@ -2371,7 +2371,7 @@ export function MachinePay() {
               key={valor}
               onClick={() => setAba(valor)}
               className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
-                aba === valor ? "bg-[#0B3BA8] text-white shadow" : "text-gray-600 hover:bg-gray-100"
+                aba === valor ? "bg-[#12A150] text-white shadow" : "text-gray-600 hover:bg-gray-100"
               }`}
             >
               {label}

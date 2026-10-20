@@ -43,7 +43,7 @@ const gerarQrCode = (url) =>
   QRCode.toDataURL(url, { width: 800, margin: 1, errorCorrectionLevel: "M" });
 
 const QUANTIDADE_MAXIMA = 50;
-const NOME_CONTA_MACHINE_PAY = "Toy Diversões";
+const NOME_CONTA_MACHINE_PAY = "Camaleão Diversões";
 
 const descreverEscopo = (link) => {
   if (link.maquina) return link.maquina;
@@ -51,7 +51,7 @@ const descreverEscopo = (link) => {
   return `Todas as máquinas ${NOME_CONTA_MACHINE_PAY}`;
 };
 
-// Folhas A4 dos vouchers: "TOY DIVERSÕES" em cima, QR Code no meio e o valor
+// Folhas A4 dos vouchers: "CAMALEÃO DIVERSÕES" em cima, QR Code no meio e o valor
 // embaixo. Com porFolha = 4 cabem 4 vouchers por A4 (2x2) com linha de corte.
 // Imprime por um iframe invisível (não esbarra em bloqueador de pop-up) e
 // remove o iframe depois.
@@ -70,7 +70,7 @@ const imprimirVouchers = (vouchers, porFolha = 1) => {
 
   const cartao = ({ qrDataUrl, valor }) => `
     <div class="voucher">
-      <div class="marca">TOY DIVERSÕES</div>
+      <div class="marca">CAMALEÃO DIVERSÕES</div>
       <img class="qr" src="${qrDataUrl}" alt="QR Code do voucher" />
       <div class="mensagem">
         Você tem um Voucher de<br /><span class="valor">${formatarMoeda(valor)}</span>!<br />Aproveite!
@@ -104,7 +104,7 @@ const imprimirVouchers = (vouchers, porFolha = 1) => {
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8" />
-<title>Vouchers Toy Diversões</title>
+<title>Vouchers Camaleão Diversões</title>
 <style>
   @page { size: A4 portrait; margin: 0; }
   * { box-sizing: border-box; }

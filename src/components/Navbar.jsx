@@ -110,7 +110,7 @@ export function Navbar() {
     <nav
       className="relative shadow-2xl border-b-4 border-accent-yellow z-50"
       style={{
-        background: "linear-gradient(to right, #082A7A, #0B3BA8)",
+        background: "linear-gradient(to right, #0B5D3B, #0E8C83)",
         textShadow: "0 2px 4px rgba(0,0,0,0.5)",
         color: "#FFFFFF",
       }}
@@ -155,8 +155,8 @@ export function Navbar() {
               onClick={closeMenu}
             >
               <img
-                src="/ToyDiversoesLogo.png"
-                alt="Toy Diversões"
+                src="/CamaleaoDiversoesLogo.png"
+                alt="Camaleão Diversões"
                 className="w-20 h-20 lg:w-24 lg:h-24 object-contain transition-transform duration-300 group-hover:scale-110"
                 onError={(e) => {
                   e.target.style.display = "none";

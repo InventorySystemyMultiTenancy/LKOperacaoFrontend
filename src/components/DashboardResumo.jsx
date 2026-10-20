@@ -16,7 +16,7 @@ function Valor({ titulo, valor, detalhe, destaque }) {
   return (
     <div className={`rounded-xl p-4 ${destaque ? "bg-white/20 ring-2 ring-accent-yellow" : "bg-white/10"}`}>
       <p className="text-xs font-semibold uppercase tracking-wide opacity-90">{titulo}</p>
-      <p className={`font-extrabold mt-1 ${destaque ? "text-3xl text-accent-yellow" : "text-2xl"}`}>{reais(valor)}</p>
+      <p className={`font-extrabold mt-1 ${destaque ? "text-3xl text-white drop-shadow" : "text-2xl"}`}>{reais(valor)}</p>
       {detalhe && <p className="text-xs opacity-80 mt-1">{detalhe}</p>}
     </div>
   );

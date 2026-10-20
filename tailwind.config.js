@@ -5,25 +5,25 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "#0B3BA8", // Azul Toy Diversões
-          light: "#1E5BD8", // Azul claro
-          dark: "#082A7A", // Azul escuro
+          DEFAULT: "#12A150", // Verde Camaleão Diversões
+          light: "#0EA5A4", // Azul verde-água
+          dark: "#0B5D3B", // Verde escuro
         },
         secondary: {
           DEFAULT: "#FFFFFF", // Branco
-          light: "#FFFCF0", // Branco amarelado
+          light: "#F3FBF8", // Branco esverdeado
         },
         background: {
-          dark: "#082A7A", // Azul escuro
-          light: "#FFFCF0", // Branco amarelado
+          dark: "#0B5D3B", // Verde escuro
+          light: "#F3FBF8", // Branco esverdeado
         },
         accent: {
-          blue: "#0B3BA8", // Azul Toy Diversões
-          red: "#E30613", // Vermelho da faixa da logo (alertas)
-          yellow: "#FFD800", // Amarelo Toy Diversões
-          green: "#16A34A", // Verde (sucesso)
+          blue: "#0EA5A4", // Azul verde-água
+          red: "#E30613", // Vermelho (alertas)
+          yellow: "#2DD4BF", // Destaque verde-água (nome mantido: usado em todo o sistema)
+          green: "#12A150", // Verde
           white: "#FFFFFF", // Branco
-          cream: "#FFF6CC", // Amarelo suave
+          cream: "#E6FBF5", // Verde-água suave
         },
       },
       fontFamily: {

@@ -81,7 +81,7 @@ export function HorarioFuncionamentoEditor({ valor, onChange }) {
             <button
               type="button"
               onClick={replicarHorario}
-              className="text-sm font-semibold text-[#0B3BA8] hover:underline"
+              className="text-sm font-semibold text-[#12A150] hover:underline"
             >
               Usar o 1º horário em todos os dias marcados
             </button>

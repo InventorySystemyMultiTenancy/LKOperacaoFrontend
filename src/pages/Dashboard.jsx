@@ -979,7 +979,7 @@ export function Dashboard() {
           }
 
           <div class="footer">
-            <p>Relatório gerado automaticamente pelo Sistema Toy Diversões</p>
+            <p>Relatório gerado automaticamente pelo Sistema Camaleão Diversões</p>
           </div>
         </body>
       </html>
@@ -1331,7 +1331,7 @@ export function Dashboard() {
             </table>
             
             <div class="footer">
-              <p>Toy Diversões - Sistema de Gestão de Máquinas</p>
+              <p>Camaleão Diversões - Sistema de Gestão de Máquinas</p>
               <p>Relatório gerado automaticamente pelo sistema</p>
             </div>
           </body>
@@ -1408,7 +1408,7 @@ export function Dashboard() {
               </table>
               
               <div style="margin-top: 15px; text-align: center; font-size: 10px; color: #6b7280;">
-                <p>Toy Diversões - Sistema de Gestão de Máquinas</p>
+                <p>Camaleão Diversões - Sistema de Gestão de Máquinas</p>
               </div>
             </div>
           `,

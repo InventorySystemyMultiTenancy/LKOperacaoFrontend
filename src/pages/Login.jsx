@@ -37,13 +37,13 @@ export function Login() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-4">
             <img
-              src="/ToyDiversoesLogo.png"
-              alt="Toy Diversões"
+              src="/CamaleaoDiversoesLogo.png"
+              alt="Camaleão Diversões"
               className="w-38 h-38 object-contain"
             />
           </div>
           <h1 className="text-4xl font-bold mb-2">
-            <span className="text-gradient">Toy Diversões</span>
+            <span className="text-gradient">Camaleão Diversões</span>
           </h1>
           <p className="text-gray-600 font-medium">
             Sistema de Gestão de Pelúcias 🧸

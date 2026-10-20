@@ -174,7 +174,7 @@ export function Registrar() {
             <span className="text-gradient">Criar Conta</span>
           </h1>
           <p className="text-gray-600 text-sm">
-            Junte-se ao Sistema Toy Diversões 🧸
+            Junte-se ao Sistema Camaleão Diversões 🧸
           </p>
         </div>
 
@@ -410,7 +410,7 @@ export function Registrar() {
         {/* Footer decorativo */}
         <div className="mt-6 pt-4 border-t border-gray-200 text-center">
           <p className="text-xs text-gray-500">
-            🧸 Bem-vindo à família Toy Diversões
+            🧸 Bem-vindo à família Camaleão Diversões
           </p>
         </div>
       </div>

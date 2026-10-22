@@ -91,6 +91,7 @@ export const CATALOGO_ABAS = [
       { chave: "machinePay.creditoRemoto", label: "Enviar créditos remotos para a máquina" },
       { chave: "machinePay.devolucao", label: "Devolver pagamentos do extrato" },
       { chave: "machinePay.horario", label: "Editar horário de funcionamento e região (capital/interior) dos pontos" },
+      { chave: "machinePay.fechamento", label: "Gerar relatório de vendas do ponto e fazer fechamento na Machine Pay" },
     ],
   },
   {

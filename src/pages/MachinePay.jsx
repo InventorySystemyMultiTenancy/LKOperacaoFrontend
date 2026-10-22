@@ -19,6 +19,7 @@ import { Footer } from "../components/Footer";
 import { AlertBox, Modal, PageHeader } from "../components/UIComponents";
 import { LoadingSpinner } from "../components/Loading";
 import { LeitoresContaMachinePay } from "../components/LeitoresContaMachinePay";
+import { RelatorioFechamentoPonto } from "../components/RelatorioFechamentoPonto";
 import { HorarioFuncionamentoEditor } from "../components/HorarioFuncionamento";
 import {
   editorParaHorario,
@@ -286,6 +287,9 @@ function usePermissoesMachinePay() {
     podeCredito: pode("machinePay.creditoRemoto", isAdmin),
     podeDevolver: pode("machinePay.devolucao", isAdmin),
     podeHorario: pode("machinePay.horario", isAdmin),
+    podeFechamento:
+      pode("machinePay.valores", adminOuFinanceiro) && pode("machinePay.fechamento", adminOuFinanceiro),
+    usuarioNome: usuario?.nome || null,
   };
 }
 
@@ -1195,7 +1199,7 @@ function CreditoRemoto({ maquina }) {
 // Quem não é ADMIN só vê as vendas de hoje e dos últimos dias (o servidor também limita)
 const DIAS_VENDAS_NAO_ADMIN = 3;
 
-function ExtratoVendas({ maquina, verValores, podeDevolver, isAdmin }) {
+function ExtratoVendas({ maquina, verValores, podeDevolver, isAdmin, podeFechamento, usuarioNome }) {
   const hoje = dataBrasil();
   const dataMinima = isAdmin ? undefined : somarDias(hoje, -DIAS_VENDAS_NAO_ADMIN);
   // Abre já com o extrato: 30 dias para o ADMIN (como o painel), últimos dias para os demais
@@ -1340,6 +1344,14 @@ function ExtratoVendas({ maquina, verValores, podeDevolver, isAdmin }) {
           </div>
         </>
       )}
+      {podeFechamento && !loading && !erro && (
+        <RelatorioFechamentoPonto
+          maquina={maquina}
+          periodo={{ inicio: dados?.periodo?.inicio || consulta.inicio, fim: dados?.periodo?.fim || consulta.fim }}
+          vendas={vendas}
+          usuarioNome={usuarioNome}
+        />
+      )}
     </div>
   );
 }
@@ -1355,6 +1367,8 @@ function AcoesMaquina({ maquina, permissoes }) {
             verValores={permissoes.verValores}
             podeDevolver={permissoes.podeDevolver}
             isAdmin={permissoes.isAdmin}
+            podeFechamento={permissoes.podeFechamento}
+            usuarioNome={permissoes.usuarioNome}
           />
         </div>
       )}

@@ -6,6 +6,7 @@ import { PageHeader, AlertBox, Modal } from "../components/UIComponents";
 import { PageLoader, EmptyState } from "../components/Loading";
 import { useAuth } from "../contexts/AuthContext";
 
+import { ResultadoLojas } from "../components/ResultadoLojas";
 export function Financeiro() {
   const { usuario, pode } = useAuth();
   const [movimentacoes, setMovimentacoes] = useState([]);
@@ -129,6 +130,10 @@ export function Financeiro() {
           subtitle="Preencha valores de movimentações com bag pendentes"
           icon="💰"
         />
+
+        <div className="mb-8">
+          <ResultadoLojas titulo="Resultado por loja" compacto={false} />
+        </div>
 
         {error && <AlertBox type="error" message={error} onClose={() => setError("")} />}
         {success && <AlertBox type="success" message={success} onClose={() => setSuccess("")} />}

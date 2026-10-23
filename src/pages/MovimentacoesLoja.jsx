@@ -96,6 +96,8 @@ export function MovimentacoesLoja() {
   const [loja, setLoja] = useState(null);
   const [maquinas, setMaquinas] = useState([]);
   const [produtos, setProdutos] = useState([]);
+  // Estoque deste ponto (produtos comprados/enviados para ele) para abastecer
+  const [estoquePonto, setEstoquePonto] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -225,6 +227,21 @@ export function MovimentacoesLoja() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!lojaId) return;
+    api
+      .get(`/estoque-lojas/${lojaId}`)
+      .then((res) => {
+        const lista = Array.isArray(res.data) ? res.data : res.data?.estoque || res.data?.itens || [];
+        setEstoquePonto(
+          Object.fromEntries(
+            lista.map((e) => [String(e.produtoId || e.produto?.id), Number(e.quantidade) || 0]),
+          ),
+        );
+      })
+      .catch(() => setEstoquePonto({}));
+  }, [lojaId]);
 
   const carregarEstoqueDeposito = async () => {
     try {
@@ -732,11 +749,26 @@ export function MovimentacoesLoja() {
                     required
                   >
                     <option value="">Selecione um produto</option>
-                    {produtos.map((prod) => (
-                      <option key={prod.id} value={prod.id}>
-                        {prod.nome}
-                      </option>
-                    ))}
+                    {produtos.some((prod) => estoquePonto[String(prod.id)] > 0) && (
+                      <optgroup label="📦 No estoque deste ponto">
+                        {produtos
+                          .filter((prod) => estoquePonto[String(prod.id)] > 0)
+                          .map((prod) => (
+                            <option key={prod.id} value={prod.id}>
+                              {prod.emoji || "🧸"} {prod.nome} — {estoquePonto[String(prod.id)]} un. no ponto
+                            </option>
+                          ))}
+                      </optgroup>
+                    )}
+                    <optgroup label="Outros produtos">
+                      {produtos
+                        .filter((prod) => !(estoquePonto[String(prod.id)] > 0))
+                        .map((prod) => (
+                          <option key={prod.id} value={prod.id}>
+                            {prod.nome}
+                          </option>
+                        ))}
+                    </optgroup>
                   </select>
                 </div>
 

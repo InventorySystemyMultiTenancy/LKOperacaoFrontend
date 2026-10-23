@@ -77,6 +77,11 @@ export const CATALOGO_ABAS = [
     ],
   },
   {
+    chave: "compras",
+    label: "🛒 Compras",
+    rota: "/compras",
+  },
+  {
     chave: "conferencia",
     label: "🎯 Conferência",
     rota: "/conferencia",

@@ -40,6 +40,8 @@ const Relatorios = lazy(() => import("./pages/Relatorios").then(m => ({ default:
 const AlertasEstoque = lazy(() => import("./pages/AlertasEstoque").then(m => ({ default: m.AlertasEstoque })));
 const MachinePay = lazy(() => import("./pages/MachinePay").then(m => ({ default: m.MachinePay })));
 const Arrecadacao = lazy(() => import("./pages/Arrecadacao").then(m => ({ default: m.Arrecadacao })));
+const Compras = lazy(() => import("./pages/Compras").then(m => ({ default: m.Compras })));
+const ProdutosAComprar = lazy(() => import("./pages/ProdutosAComprar").then(m => ({ default: m.ProdutosAComprar })));
 const Conferencia = lazy(() => import("./pages/Conferencia").then(m => ({ default: m.Conferencia })));
 const StyleGuide = lazy(() => import("./pages/StyleGuide").then(m => ({ default: m.StyleGuide })));
 const CreditosRemotos = lazy(() => import("./pages/CreditosRemotos").then(m => ({ default: m.CreditosRemotos })));
@@ -264,6 +266,38 @@ function AppRoutes() {
             element={
               <PrivateRoute permissao="financeiro" allowedRoles={["ADMIN", "FINANCEIRO"]}>
                 <Financeiro />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/compras"
+            element={
+              <PrivateRoute permissao="compras" allowedRoles={["ADMIN", "FINANCEIRO"]}>
+                <Compras aba="nova" />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/compras/estoque"
+            element={
+              <PrivateRoute permissao="compras" allowedRoles={["ADMIN", "FINANCEIRO"]}>
+                <Compras aba="estoque" />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/compras/historico"
+            element={
+              <PrivateRoute permissao="compras" allowedRoles={["ADMIN", "FINANCEIRO"]}>
+                <Compras aba="historico" />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/compras/reposicao"
+            element={
+              <PrivateRoute permissao="compras" allowedRoles={["ADMIN", "FINANCEIRO"]}>
+                <ProdutosAComprar />
               </PrivateRoute>
             }
           />

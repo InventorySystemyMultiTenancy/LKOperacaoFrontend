@@ -7,6 +7,7 @@ import { PageHeader } from "../components/UIComponents";
 import { PageLoader } from "../components/Loading";
 import { useAuth } from "../contexts/AuthContext";
 
+import { ResultadoLojas } from "../components/ResultadoLojas";
 export function Relatorios() {
   const { usuario, isAdmin } = useAuth();
   const navigate = useNavigate();
@@ -1279,6 +1280,10 @@ export function Relatorios() {
           subtitle="Gere relatórios detalhados de movimentações por loja"
           icon="📊"
         />
+
+        <div className="mb-8 no-print">
+          <ResultadoLojas titulo="Lucro líquido por loja" compacto={true} />
+        </div>
 
         {/* Formulário de Filtros */}
         <div className="card mb-6 no-print">

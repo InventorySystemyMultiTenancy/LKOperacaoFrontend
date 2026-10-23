@@ -4,6 +4,7 @@ import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
 import { PageHeader } from "../components/UIComponents";
 import { PageLoader } from "../components/Loading";
+import { ResultadoLojas } from "../components/ResultadoLojas";
 import {
   BarChart,
   Bar,
@@ -46,11 +47,13 @@ export function Graficos() {
       const params = { dataInicio, dataFim };
       if (lojaSelecionada) params.lojaId = lojaSelecionada;
 
-      const [maquinasRes, movimentacoesRes, produtosRes, balancoRes] = await Promise.all([
+      const [maquinasRes, movimentacoesRes, produtosRes, balancoRes, resultadoRes] = await Promise.all([
         api.get("/maquinas"),
         api.get("/movimentacoes"),
         api.get("/produtos"),
         api.get("/relatorios/balanco-semanal", { params }).catch(() => ({ data: null })),
+        // Custo das pelúcias pelo preço de compra e comissão (mesma conta do Financeiro e Relatórios)
+        api.get("/relatorios/resultado-lojas", { params }).catch(() => ({ data: null })),
       ]);
 
       // Filtra por loja se selecionada, senao usa todas
@@ -72,7 +75,7 @@ export function Graficos() {
         return maquinaIds.has(maqId) && movData >= inicio && movData <= fim;
       });
 
-      processarDados(maquinas, movFiltradas, produtosRes.data || [], lojas, balancoRes.data);
+      processarDados(maquinas, movFiltradas, produtosRes.data || [], lojas, balancoRes.data, resultadoRes.data);
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
     } finally {
@@ -98,7 +101,15 @@ export function Graficos() {
     }
   };
 
-  const processarDados = (maquinas, movs, produtos, lojasList, balanco) => {
+  const processarDados = (maquinas, movs, produtos, lojasList, balanco, resultado) => {
+    // Resultado do backend: custo real (compras) e comissão por máquina e loja
+    const resultadoMaquina = new Map();
+    const resultadoLoja = new Map();
+    (resultado?.lojas || []).forEach((l) => {
+      resultadoLoja.set(String(l.lojaId), l);
+      resultadoLoja.set(`nome:${l.nome}`, l);
+      (l.maquinas || []).forEach((mq) => resultadoMaquina.set(String(mq.maquinaId), mq));
+    });
     // Helper: converte campo da API (pode vir como string) para numero
     const n = v => Number(v) || 0;
 
@@ -131,8 +142,9 @@ export function Graficos() {
       const faturamento = fatReal > 0 ? fatReal : totalSaidas * precoMedio;
 
       const pct = n(maq.percentualComissao);
-      const custoProd = totalSaidas * precoMedio;
-      const custoComissao = faturamento * (pct / 100);
+      const real = resultadoMaquina.get(maqId);
+      const custoProd = real ? n(real.custoProdutos) : resultado ? 0 : totalSaidas * precoMedio;
+      const custoComissao = real ? n(real.comissao) : resultado ? 0 : faturamento * (pct / 100);
 
       const ultimaMov = [...movsMaq].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
       const estoque = ultimaMov
@@ -187,15 +199,30 @@ export function Graficos() {
       porLoja = Object.values(lojaMap).sort((a, b) => b.faturamento - a.faturamento);
     }
 
+    // Custos por loja vindos do backend (custo de compra das pelúcias e comissão)
+    if (resultado) {
+      porLoja.forEach((l) => {
+        const real = resultadoLoja.get(String(l.lojaId)) || resultadoLoja.get(`nome:${l.lojaNome}`);
+        if (real) l.faturamento = n(real.receita);
+        l.custoProd = real ? n(real.custoProdutos) : 0;
+        l.custoComissao = real ? n(real.comissao) : 0;
+      });
+    }
+
     // ===== Totais financeiros — usa faturamento real do balanco quando disponivel =====
-    const lucroBruto = faturamentoBalanco > 0
-      ? faturamentoBalanco
-      : porMaquina.reduce((s, m) => s + m.faturamento, 0);
+    // Mesma receita do "Resultado por loja" (dinheiro + fichas + digital das coletas)
+    const lucroBruto = resultado
+      ? n(resultado.totais?.receita)
+      : faturamentoBalanco > 0
+        ? faturamentoBalanco
+        : porMaquina.reduce((s, m) => s + m.faturamento, 0);
     const totalSaidasReal = saidasBalanco > 0
       ? saidasBalanco
       : porMaquina.reduce((s, m) => s + m.totalSaidas, 0);
-    const custoProdTotal = totalSaidasReal * precoMedio;
-    const custoComTotal = porMaquina.reduce((s, m) => s + m.custoComissao, 0);
+    const custoProdTotal = resultado ? n(resultado.totais?.custoProdutos) : totalSaidasReal * precoMedio;
+    const custoComTotal = resultado
+      ? n(resultado.totais?.comissao)
+      : porMaquina.reduce((s, m) => s + m.custoComissao, 0);
 
     setDadosProcessados({
       porMaquina,
@@ -207,7 +234,7 @@ export function Graficos() {
         maquinas: maquinas.length,
       },
       financeiro: { lucroBruto, custoProdutos: custoProdTotal, custoComissao: custoComTotal, precoMedio },
-      origemFaturamento: faturamentoBalanco > 0 ? "backend" : "estimado",
+      origemFaturamento: resultado || faturamentoBalanco > 0 ? "backend" : "estimado",
     });
   };
 
@@ -245,6 +272,10 @@ export function Graficos() {
           subtitle="Desempenho financeiro e operacional das máquinas"
           icon="📈"
         />
+
+        <div className="mb-8">
+          <ResultadoLojas titulo="Para onde vai a receita de cada loja" compacto={true} />
+        </div>
 
         {/* ===== FILTROS ===== */}
         <div className="card mb-6">
